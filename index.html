@@ -1,222 +1,216 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html dir="rtl" lang="ar">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>تسجيل غياب — رابط المعلّم</title>
-  <style>
-    :root{--bg:#0b1320;--card:#0f172a;--muted:#94a3b8;--border:#233044;--text:#e5e7eb;--ok:#16a34a;--warn:#dc2626;--accent:#60a5fa}
-    *{box-sizing:border-box}
-    body{margin:0;background:linear-gradient(180deg,#0b1320,#0d172a);color:var(--text);font-family:"Tajawal",system-ui,Segoe UI,Roboto,sans-serif}
-    .app{max-width:1100px;margin:24px auto;padding:16px}
-    header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
-    .brand{display:flex;gap:10px;align-items:center}
-    .brand h1{font-size:20px;margin:0}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .field{display:flex;flex-direction:column;gap:6px;min-width:160px}
-    label{font-size:12px;color:var(--muted)}
-    select,input,button{background:#0b1220;border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:12px}
-    button{cursor:pointer}
-    button.primary{background:#0e1628}
-    .badge{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--border);border-radius:999px;padding:6px 10px;color:var(--muted)}
-    table{width:100%;border-collapse:separate;border-spacing:0 8px}
-    th,td{text-align:right;padding:10px}
-    tbody tr{background:#0b1220;border:1px solid var(--border)}
-    tbody tr td:first-child{border-radius:10px 0 0 10px}
-    tbody tr td:last-child{border-radius:0 10px 10px 0}
-    .toggle{position:relative;width:62px;height:30px;border-radius:999px;border:1px solid #334155;background:#172036;cursor:pointer;display:inline-flex;align-items:center}
-    .knob{position:absolute;top:3px;bottom:3px;width:24px;border-radius:999px;background:#e5e7eb;transition:.2s}
-    .toggle[data-on="true"]{background:#064e3b;border-color:#14532d}
-    .toggle[data-on="true"] .knob{right:4px}
-    .toggle[data-on="false"] .knob{right:34px}
-    .toast{position:fixed;bottom:18px;left:18px;background:#0e1628;border:1px solid #334155;color:var(--text);padding:10px 14px;border-radius:12px}
-  </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>منصة متابعة الطلبة بمدرسة معولة بن شمس</title>
+<style>
+  body { font-family: 'Tajawal', sans-serif; background: #f4f4f4; color: #111; padding: 20px; direction: rtl; text-align: center; }
+  h2 { margin-bottom: 20px; }
+  .menu-btn { display: inline-block; padding: 20px 40px; margin: 20px; font-size: 20px; border-radius: 10px; cursor: pointer; color: white; border: none; }
+  .absence-btn { background-color: #16a34a; }
+  .violation-btn { background-color: #dc2626; }
+  .hidden { display: none; }
+  table { width: 100%; border-collapse: collapse; background: #fff; margin-top: 20px; }
+  th, td { padding: 10px; border: 1px solid #ccc; text-align: right; }
+  th { background: #eee; }
+  button, select, input { padding: 6px 12px; margin-left: 10px; border: 1px solid #ccc; border-radius: 6px; }
+  button { cursor: pointer; }
+  .present { background: #16a34a; color: #fff; }
+  .absent { background: #dc2626; color: #fff; }
+  .controls { margin-bottom: 20px; }
+  .back-btn { margin-top: 20px; background-color: #555; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; }
+</style>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <div class="brand">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3l9 6-9 6-9-6 9-6z" stroke="#60a5fa" stroke-width="1.5"/><path d="M3 12l9 6 9-6" stroke="#60a5fa" stroke-opacity=".5"/></svg>
-        <h1>تسجيل غياب — رابط المعلّم</h1>
-      </div>
-      <div class="row">
-        <div class="badge">المعلّم: <strong id="tname">—</strong><span id="tid" style="margin-right:6px"></span></div>
-      </div>
-    </header>
-
-    <div class="card">
-      <div class="row">
-        <div class="field">
-          <label>اختر الصف</label>
-          <select id="gradeSelect">
-            <option value="">—</option>
-            <option value="5" selected>الصف 5</option>
-            <option value="6">الصف 6</option>
-            <option value="7">الصف 7</option>
-            <option value="8">الصف 8</option>
-            <option value="9">الصف 9</option>
-            <option value="10">الصف 10</option>
-            <option value="11">الصف 11</option>
-            <option value="12">الصف 12</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>اختر الشعبة</label>
-          <select id="sectionSelect">
-            <option value="">—</option>
-            <option value="1" selected>الشعبة 1</option>
-            <option value="2">الشعبة 2</option>
-            <option value="3">الشعبة 3</option>
-            <option value="4">الشعبة 4</option>
-          </select>
-        </div>
-        <div class="field" style="min-width:220px">
-          <label>تحميل القائمة</label>
-          <button class="primary" id="loadClassBtn">تحميل من المجلد /classes</button>
-        </div>
-      </div>
-      <div class="row" style="margin-top:10px">
-        <div class="badge">التاريخ: <strong id="today"></strong></div>
-        <div class="badge">الحضور الافتراضي: حاضر</div>
-        <div class="badge">الغائبون: <strong id="absCount" style="color:#dc2626">0</strong></div>
-        <div class="badge">الحاضرون: <strong id="presCount" style="color:#16a34a">0</strong></div>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:12px">
-      <div class="row" style="justify-content:space-between;align-items:center">
-        <div>القائمة</div>
-        <div class="row">
-          <button id="markAllPresent">الجميع حاضر</button>
-          <button id="markAllAbsent">الجميع غائب</button>
-        </div>
-      </div>
-      <table style="margin-top:10px">
-        <thead><tr><th>#</th><th>اسم الطالب</th><th>الهاتف</th><th>الحالة</th></tr></thead>
-        <tbody id="studentsBody"></tbody>
-      </table>
-      <div class="row" style="justify-content:flex-end;margin-top:10px">
-        <button id="btnExportAdmin">تنزيل CSV (الغائبون)</button>
-        <button id="btnWhatsapp">واتساب لأولياء الأمور (الغائبون)</button>
-      </div>
-      <div style="color:#94a3b8;margin-top:8px">ملاحظة: التحميل من المجلد يعتمد على تسمية الملفات بالشكل <code>classes_from_{g}-{s}_QA.csv</code> داخل مجلد <code>/classes</code>.</div>
-    </div>
+  <!-- الصفحة الرئيسية -->
+  <div id="mainMenu">
+    <h2>منصة متابعة الطلبة بمدرسة معولة بن شمس</h2>
+    <button class="menu-btn absence-btn" onclick="showSection('absenceSection')">🟩 تسجيل الغياب</button>
+    <button class="menu-btn violation-btn" onclick="showSection('violationSection')">🟥 تسجيل المخالفات</button>
   </div>
 
-  <div id="toast" class="toast" style="display:none"></div>
+  <!-- صفحة الغياب -->
+  <div id="absenceSection" class="hidden">
+    <h2>تسجيل غياب الطلبة بمدرسة معولة بن شمس</h2>
+    <div class="controls">
+      <label>اسم المعلم: <input id="teacherNameAbs" placeholder="اكتب اسم المعلم" type="text"/></label>
+      <label>الصف:
+        <select id="gradeSelectAbs" onchange="updateSections('Abs')">
+          <option value="">اختر</option>
+          <option value="5">الصف الخامس</option>
+          <option value="6">الصف السادس</option>
+          <option value="7">الصف السابع</option>
+          <option value="8">الصف الثامن</option>
+          <option value="9">الصف التاسع</option>
+          <option value="10">الصف العاشر</option>
+          <option value="11">الصف الحادي عشر</option>
+          <option value="12">الصف الثاني عشر</option>
+        </select>
+      </label>
+      <label>الشعبة:
+        <select id="sectionSelectAbs"><option value="">اختر</option></select>
+      </label>
+      <button onclick="loadCSVData('Abs')">عرض الطلاب</button>
+      <button onclick="exportData('Abs')">📤 إرسال</button>
+    </div>
+    <table>
+      <thead>
+        <tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>الحالة</th></tr>
+      </thead>
+      <tbody id="studentsBodyAbs"><tr><td colspan="4">بانتظار تحميل البيانات...</td></tr></tbody>
+    </table>
+    <button class="back-btn" onclick="showSection('mainMenu')">🏠 رجوع إلى القائمة الرئيسية</button>
+  </div>
+
+  <!-- صفحة المخالفات -->
+  <div id="violationSection" class="hidden">
+    <h2>تسجيل مخالفات الطلبة بمدرسة معولة بن شمس</h2>
+    <div class="controls">
+      <label>اسم المعلم: <input id="teacherNameViol" placeholder="اكتب اسم المعلم" type="text"/></label>
+      <label>الصف:
+        <select id="gradeSelectViol" onchange="updateSections('Viol')">
+          <option value="">اختر</option>
+          <option value="5">الصف الخامس</option>
+          <option value="6">الصف السادس</option>
+          <option value="7">الصف السابع</option>
+          <option value="8">الصف الثامن</option>
+          <option value="9">الصف التاسع</option>
+          <option value="10">الصف العاشر</option>
+          <option value="11">الصف الحادي عشر</option>
+          <option value="12">الصف الثاني عشر</option>
+        </select>
+      </label>
+      <label>الشعبة:
+        <select id="sectionSelectViol"><option value="">اختر</option></select>
+      </label>
+      <button onclick="loadCSVData('Viol')">عرض الطلاب</button>
+      <button onclick="exportData('Viol')">📤 إرسال</button>
+    </div>
+    <table>
+      <thead>
+        <tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>المخالفة</th></tr>
+      </thead>
+      <tbody id="studentsBodyViol"><tr><td colspan="4">بانتظار تحميل البيانات...</td></tr></tbody>
+    </table>
+    <button class="back-btn" onclick="showSection('mainMenu')">🏠 رجوع إلى القائمة الرئيسية</button>
+  </div>
 
 <script>
-const state = { classes: [], grade:null, section:null, attendance:{}, teacher:{id:'', name:''} };
-const $=s=>document.querySelector(s); const $$=s=>Array.from(document.querySelectorAll(s));
-const fmtDate = d => new Intl.DateTimeFormat('ar',{dateStyle:'full'}).format(d);
-const toast = (m)=>{const t=$('#toast'); t.textContent=m; t.style.display='block'; setTimeout(()=>t.style.display='none',2200)}
+const SHEET_URLS = [];
+const EXPORT_WEBAPP_URL = '';
+const state = { Abs: {students: [], attendance: {}}, Viol: {students: [], violations: {}} };
 
-const params = new URLSearchParams(location.search);
-state.teacher.id = params.get('teacher_id')||'';
-state.teacher.name = params.get('teacher_name')||'أ. محمد';
-$('#tid').textContent = state.teacher.id? '('+state.teacher.id+')':'';
-$('#tname').textContent = state.teacher.name;
-$('#today').textContent = fmtDate(new Date());
-
-function renderStudents(){
-  const body = $('#studentsBody'); body.innerHTML='';
-  const list = currentStudents();
-  list.forEach((s,i)=>{
-    if(!(s.id in state.attendance)) state.attendance[s.id] = true;
-    const on = !!state.attendance[s.id];
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${i+1}</td><td>${s.name}</td><td>${s.phone||'<span style="color:#94a3b8">—</span>'}</td>
-      <td><div class="toggle" data-on="${on}" data-id="${s.id}"><div class="knob"></div></div></td>`;
-    body.appendChild(tr);
-  });
-  $$('#studentsBody .toggle').forEach(el=> el.onclick=()=>{
-    const id=el.getAttribute('data-id'); const on=(el.getAttribute('data-on')==='true');
-    state.attendance[id]=!on; el.setAttribute('data-on', String(!on)); updateCounters();
-  });
-  updateCounters();
+function showSection(id) {
+  document.querySelectorAll('#mainMenu, #absenceSection, #violationSection').forEach(div => div.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
 }
 
-function updateCounters(){
-  const list = currentStudents(); let p=0,a=0; for(const s of list){ (state.attendance[s.id]===false?a:p)++ }
-  $('#absCount').textContent=a; $('#presCount').textContent=p;
-}
-
-function currentStudents(){
-  if(Array.isArray(state.classes)){
-    if(state.classes.length && state.classes[0].students){
-      const g = Number(state.grade), sec = String(state.section);
-      const grp = state.classes.find(c => Number(c.grade)===g && String(c.section)===sec) || state.classes[0];
-      return grp.students || [];
-    } else { return state.classes; }
+function updateSections(type) {
+  const grade = document.getElementById('gradeSelect' + type).value;
+  const sectionSelect = document.getElementById('sectionSelect' + type);
+  sectionSelect.innerHTML = '<option value="">اختر</option>';
+  let count = 3;
+  if (grade === '10') count = 4; else if (grade === '11') count = 6; else if (grade === '12') count = 5;
+  for (let i = 1; i <= count; i++) {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = 'الشعبة ' + i;
+    sectionSelect.appendChild(opt);
   }
-  return [];
 }
 
-function normalizeCSV(text){
-  const lines = text.trim().split(/\r?\n/);
-  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-  const idx = {
-    id: headers.findIndex(h => /student_id|id|الرقم/i.test(h)),
-    name: headers.findIndex(h => /student_name|name|الاسم/i.test(h)),
-    phone: headers.findIndex(h => /phone|الهاتف|جوال/i.test(h))
-  };
-  return [{
-    grade: state.grade,
-    section: state.section,
-    students: lines.slice(1).map((line, i) => {
-      const v = line.split(',');
-      return {
-        id: v[idx.id] || `id-${i+1}`,
-        name: v[idx.name] || '',
-        phone: (v[idx.phone] || '').replace(/\s+/g,'')
-      };
-    })
-  }];
-}
+async function loadCSVData(type) {
+  const grade = document.getElementById('gradeSelect' + type).value.trim();
+  const section = document.getElementById('sectionSelect' + type).value.trim();
+  if (!grade || !section) { alert('يرجى اختيار الصف والشعبة'); return; }
 
-async function loadSelectedClass(){
-  const g = $('#gradeSelect').value, s = $('#sectionSelect').value;
-  if(!g || !s) return;
-  const csvPath = `classes/classes_from_${g}-${s}_QA.csv`;
   try {
-    const res = await fetch(csvPath, {cache:'no-store'});
-    if (!res.ok) throw new Error();
-    const text = await res.text();
-    state.grade = g; state.section = s; state.classes = normalizeCSV(text); state.attendance = {};
-    renderStudents(); toast(`تم التحميل: ${csvPath}`);
-  } catch(err){
-    alert('تعذر تحميل ملف CSV. تأكد من وجوده داخل مجلد classes وبتنسيق صحيح.');
+    let combinedText = '';
+    for (const url of SHEET_URLS) {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const text = await res.text();
+      combinedText += text.trim() + '\n';
+    }
+    const lines = combinedText.trim().split('\n');
+    const students = lines.slice(1).map((line, i) => {
+      const cols = line.split(',');
+      return { id: i + 1, phone: cols[0]?.trim() || '', name: cols[1]?.trim() || '', grade: cols[3]?.trim() || '', section: cols[4]?.trim() || '' };
+    }).filter(s => s.grade === grade && s.section === section);
+
+    state[type].students = students;
+    if (type === 'Abs') renderAbsence(); else renderViolations();
+  } catch (err) { console.error(err); alert('تعذر تحميل البيانات'); }
+}
+
+function renderAbsence() {
+  const tbody = document.getElementById('studentsBodyAbs');
+  tbody.innerHTML = '';
+  state.Abs.students.forEach((student, index) => {
+    if (!(student.id in state.Abs.attendance)) state.Abs.attendance[student.id] = true;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${index + 1}</td><td>${student.name}</td><td>${student.phone}</td>`;
+    const tdStatus = document.createElement('td');
+    const btn = document.createElement('button');
+    const present = state.Abs.attendance[student.id];
+    btn.textContent = present ? 'حاضر' : 'غائب';
+    btn.className = present ? 'present' : 'absent';
+    btn.onclick = () => { state.Abs.attendance[student.id] = !present; renderAbsence(); };
+    tdStatus.appendChild(btn);
+    tr.appendChild(tdStatus);
+    tbody.appendChild(tr);
+  });
+}
+
+function renderViolations() {
+  const tbody = document.getElementById('studentsBodyViol');
+  tbody.innerHTML = '';
+  const violations = [
+    '', 'النوم أثناء الحصص', 'عدم الالتزام بالزي المدرسي', 'الإساءة بالقول لأحد زملائه', 'الإهمال في أداء الوجبات', 'التأخر عن الحصة الدراسية'
+  ];
+  state.Viol.students.forEach((student, index) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${index + 1}</td><td>${student.name}</td><td>${student.phone}</td>`;
+    const tdViolation = document.createElement('td');
+    const select = document.createElement('select');
+    violations.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v; opt.textContent = v;
+      if (state.Viol.violations[student.id] === v) opt.selected = true;
+      select.appendChild(opt);
+    });
+    select.onchange = () => state.Viol.violations[student.id] = select.value;
+    tdViolation.appendChild(select);
+    tr.appendChild(tdViolation);
+    tbody.appendChild(tr);
+  });
+}
+
+function exportData(type) {
+  const teacher = document.getElementById('teacherName' + (type === 'Abs' ? 'Abs' : 'Viol')).value.trim() || 'المعلم';
+  const grade = document.getElementById('gradeSelect' + type).value;
+  const section = document.getElementById('sectionSelect' + type).value;
+  const today = new Date().toLocaleDateString('ar-EG');
+
+  if (type === 'Abs') {
+    const absents = state.Abs.students.filter(s => state.Abs.attendance[s.id] === false);
+    if (!absents.length) return alert('لا يوجد غياب لتصديره.');
+    const rows = absents.map((s, i) => ({ serial: i + 1, phone: s.phone, name: s.name, message: `ولي أمر الطالب ${s.name}، نعلمكم بغياب ابنكم عن الصف ${grade}/${section} بتاريخ ${today}. — ${teacher}` }));
+    sendData(rows);
+  } else {
+    const viols = state.Viol.students.filter(s => state.Viol.violations[s.id] && state.Viol.violations[s.id] !== '');
+    if (!viols.length) return alert('لم يتم اختيار أي مخالفات.');
+    const rows = viols.map((s, i) => ({ serial: i + 1, phone: s.phone, name: s.name, message: `ولي أمر الطالب ${s.name}، تم تسجيل مخالفة: (${state.Viol.violations[s.id]}) في الصف ${grade}/${section} بتاريخ ${today}. — ${teacher}` }));
+    sendData(rows);
   }
 }
 
-$('#loadClassBtn').onclick = loadSelectedClass;
-$('#gradeSelect').addEventListener('change', loadSelectedClass);
-$('#sectionSelect').addEventListener('change', loadSelectedClass);
-$('#markAllPresent').onclick = ()=>{ for(const s of currentStudents()) state.attendance[s.id]=true; renderStudents(); };
-$('#markAllAbsent').onclick = ()=>{ for(const s of currentStudents()) state.attendance[s.id]=false; renderStudents(); };
-
-$('#btnExportAdmin').onclick = ()=>{
-  const abs = currentStudents().filter(s=> state.attendance[s.id]===false);
-  if(!abs.length) return alert('لا يوجد غياب');
-  const cols = ['date','teacher_id','teacher_name','grade','section','student_id','student_name','phone'];
-  const dateISO = new Date().toISOString().slice(0,10);
-  const csv = [cols.join(',')].concat(abs.map(s=> [dateISO, state.teacher.id, state.teacher.name, state.grade, state.section, s.id, s.name, s.phone||''].map(x=> '"'+String(x).replace(/"/g,'""')+'"').join(','))).join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `غياب_${state.grade}-${state.section}_${dateISO}.csv`; a.click(); URL.revokeObjectURL(a.href);
-};
-
-$('#btnWhatsapp').onclick = ()=>{
-  const abs = currentStudents().filter(s=> state.attendance[s.id]===false);
-  if(!abs.length) return alert('لا يوجد غياب');
-  const msg = (s)=>`السلام عليكم ولي أمر الطالب/ة ${s.name}.\nنُفيدكم بغياب ابنكم/ابنتكم اليوم (${fmtDate(new Date())}) عن ${state.grade}/${state.section}.\nالمعلّم: ${state.teacher.name}.`;
-  let opened=0; for(const s of abs){ const p=(s.phone||'').replace(/[^\d]/g,''); if(!p) continue; const url=`https://wa.me/${p}?text=${encodeURIComponent(msg(s))}`; window.open(url,'_blank'); opened++; }
-  if(!opened) alert('لا توجد أرقام صالحة للغائبين');
-};
-
-window.addEventListener('DOMContentLoaded', ()=>{
-  $('#gradeSelect').value='5'; $('#sectionSelect').value='1'; loadSelectedClass();
-});
+function sendData(rows) {
+  fetch(EXPORT_WEBAPP_URL, {
+    method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(rows)
+  }).then(() => alert('✅ تم إرسال البيانات بنجاح')).catch(err => { alert('❌ فشل الإرسال'); console.error(err); });
+}
 </script>
 </body>
 </html>
