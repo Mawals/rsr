@@ -23,14 +23,12 @@
 </style>
 </head>
 <body>
-  <!-- الصفحة الرئيسية -->
   <div id="mainMenu">
     <h2>منصة متابعة الطلبة بمدرسة معولة بن شمس</h2>
     <button class="menu-btn absence-btn" onclick="showSection('absenceSection')">🟩 تسجيل الغياب</button>
     <button class="menu-btn violation-btn" onclick="showSection('violationSection')">🟥 تسجيل المخالفات</button>
   </div>
 
-  <!-- صفحة الغياب -->
   <div id="absenceSection" class="hidden">
     <h2>تسجيل غياب الطلبة بمدرسة معولة بن شمس</h2>
     <div class="controls">
@@ -63,7 +61,6 @@
     <button class="back-btn" onclick="showSection('mainMenu')">🏠 رجوع إلى القائمة الرئيسية</button>
   </div>
 
-  <!-- صفحة المخالفات -->
   <div id="violationSection" class="hidden">
     <h2>تسجيل مخالفات الطلبة بمدرسة معولة بن شمس</h2>
     <div class="controls">
@@ -97,7 +94,7 @@
   </div>
 
 <script>
-const SHEET_URLS = [];
+const SHEET_URLS = ['https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ3CGPHmBFZ8myoys49bw1MLrC_tfdcKuZ-ZBSMczVqLZbxzSe-LZbyqCDv2YZLQ/pub?gid=626465739&single=true&output=csv'];
 const EXPORT_WEBAPP_URL = '';
 const state = { Abs: {students: [], attendance: {}}, Viol: {students: [], violations: {}} };
 
@@ -166,9 +163,7 @@ function renderAbsence() {
 function renderViolations() {
   const tbody = document.getElementById('studentsBodyViol');
   tbody.innerHTML = '';
-  const violations = [
-    '', 'النوم أثناء الحصص', 'عدم الالتزام بالزي المدرسي', 'الإساءة بالقول لأحد زملائه', 'الإهمال في أداء الوجبات', 'التأخر عن الحصة الدراسية'
-  ];
+  const violations = [ '', 'النوم أثناء الحصص', 'عدم الالتزام بالزي المدرسي', 'الإساءة بالقول لأحد زملائه', 'الإهمال في أداء الوجبات', 'التأخر عن الحصة الدراسية' ];
   state.Viol.students.forEach((student, index) => {
     const tr = document.createElement('tr');
     tr.innerHTML = `<td>${index + 1}</td><td>${student.name}</td><td>${student.phone}</td>`;
@@ -207,9 +202,9 @@ function exportData(type) {
 }
 
 function sendData(rows) {
-  fetch(EXPORT_WEBAPP_URL, {
-    method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(rows)
-  }).then(() => alert('✅ تم إرسال البيانات بنجاح')).catch(err => { alert('❌ فشل الإرسال'); console.error(err); });
+  fetch(EXPORT_WEBAPP_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(rows) })
+    .then(() => alert('✅ تم إرسال البيانات بنجاح'))
+    .catch(err => { alert('❌ فشل الإرسال'); console.error(err); });
 }
 </script>
 </body>
