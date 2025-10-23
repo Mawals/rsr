@@ -49,12 +49,6 @@
   <!-- الصفحة الرئيسية -->
   <div id="mainMenu" class="menu-container fade-section active">
     <h2>منصة متابعة الطلبة بمدرسة معولة بن شمس</h2>
-    <div style="margin: 20px 0;">
-      <label>رابط Google Sheet (CSV):</label>
-      <input id="sheetURL" type="text" placeholder="أدخل رابط CSV هنا" style="width: 60%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;" />
-      <button onclick="setSheetURL()" style="padding: 8px 16px; border-radius: 6px;">📥 تحميل الرابط</button>
-    </div>
-
     <button class="menu-btn absence-btn"  onclick="switchSection('absenceSection')">🟩 تسجيل الغياب</button>
     <button class="menu-btn violation-btn" onclick="switchSection('violationSection')">🟥 تسجيل المخالفات</button>
     <button class="menu-btn late-btn"      onclick="switchSection('lateSection')">🔵 تسجيل المتأخرين</button>
@@ -166,20 +160,8 @@
   </div>
 
 <script>
-
-let SHEET_URLS = [];
-
-function setSheetURL() {
-  const url = document.getElementById('sheetURL').value.trim();
-  if (!url.includes('docs.google.com') || !url.includes('output=csv')) {
-    alert('يرجى إدخال رابط Google Sheet بصيغة CSV.');
-    return;
-  }
-  SHEET_URLS = [url];
-  alert('✅ تم حفظ الرابط بنجاح. يمكنك الآن عرض الطلبة.');
-}
-
 // ====== الإعدادات ======
+const SHEET_URLS = ['https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ3CGPHmBFZ8myoys49bw1MLrC_tfdcKuZ-ZBSMczVqLZbxzSe-LZbyqCDv2YZLQ/pub?gid=626465739&single=true&output=csv'];
 const EXPORT_WEBAPP_URL = ''; // اتركه فارغًا مؤقتًا
 
 // الحالة العامة
