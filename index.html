@@ -297,6 +297,24 @@ function renderMorningLate() {
   });
 }
 
+
+function resetForm(type) {
+  // إفراغ الحقول
+  const nameInput = document.getElementById('teacherName' + type);
+  const gradeSelect = document.getElementById('gradeSelect' + type);
+  const sectionSelect = document.getElementById('sectionSelect' + type);
+  const tbodyId = type === 'Abs' ? 'studentsBodyAbs' : type === 'Viol' ? 'studentsBodyViol' : 'studentsBodyMorning';
+
+  if (nameInput) nameInput.value = '';
+  if (gradeSelect) gradeSelect.value = '';
+  if (sectionSelect) sectionSelect.innerHTML = '<option value="">اختر</option>';
+  const tbody = document.getElementById(tbodyId);
+  if (tbody) tbody.innerHTML = '<tr><td colspan="4">بانتظار تحميل البيانات...</td></tr>';
+
+  // العودة للقائمة الرئيسية
+  showSection('mainMenu');
+}
+
 </script>
 </body>
 </html>
