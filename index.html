@@ -5,12 +5,6 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>منصة متابعة الطلبة بمدرسة معولة بن شمس</title>
 <style>
-
-.fade-section { opacity: 0; transition: opacity 1s ease-in-out; }
-.fade-section.active { opacity: 1; }
-table { opacity: 0; transition: opacity 1s ease-in-out; }
-table.visible { opacity: 1; }
-
   body { font-family: 'Tajawal', sans-serif; background: #e6f4ff; color: #111; padding: 0; margin: 0; direction: rtl; }
   h2 { margin: 0; padding: 0; }
   .menu-container { text-align: center; padding: 60px 20px; }
@@ -18,7 +12,7 @@ table.visible { opacity: 1; }
   .menu-btn:hover { transform: scale(1.05); }
   .absence-btn { background-color: #16a34a; }
   .violation-btn { background-color: #dc2626; }
-  .late-btn { background-color: #0077b6; }
+  .morning-btn { background-color: #0077b6; }
   .hidden { display: none; }
   .top-bar { background-color: #b3e0ff; color: #004b80; display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
   .top-bar h2 { display: flex; align-items: center; font-size: 22px; }
@@ -42,7 +36,7 @@ table.visible { opacity: 1; }
     <h2>منصة متابعة الطلبة بمدرسة معولة بن شمس</h2>
     <button class="menu-btn absence-btn" onclick="showSection('absenceSection')">🟩 تسجيل الغياب</button>
     <button class="menu-btn violation-btn" onclick="showSection('violationSection')">🟥 تسجيل المخالفات</button>
-<button class="menu-btn late-btn" onclick="showSection('morningLateSection')">🔵 التأخر الصباحي</button>
+    <button class="menu-btn morning-btn" onclick="showSection('morningLateSection')">🔵 التأخر الصباحي</button>
 
   </div>
 
@@ -158,19 +152,10 @@ const SHEET_URLS = ['https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ3CGPHmBF
 const EXPORT_WEBAPP_URL = '';
 const state = { Abs: {students: [], attendance: {}}, Viol: {students: [], violations: {}}, Morning: {students: [], status: {}} };
 
-
 function showSection(id) {
-  document.querySelectorAll('.fade-section, .menu-container').forEach(sec => {
-    sec.classList.remove('active');
-    setTimeout(() => sec.classList.add('hidden'), 900);
-  });
-  const next = document.getElementById(id);
-  setTimeout(() => {
-    next.classList.remove('hidden');
-    setTimeout(() => next.classList.add('active'), 50);
-  }, 950);
+  document.querySelectorAll('#mainMenu, #absenceSection, #violationSection, #morningLateSection').forEach(div => div.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
 }
-
 
 function updateSections(type) {
   const grade = document.getElementById('gradeSelect' + type).value;
@@ -206,16 +191,11 @@ async function loadCSVData(type) {
     }).filter(s => s.grade === grade && s.section === section);
 
     state[type].students = students;
-    
-    if (type === 'Abs') renderAbsence();
-    else if (type === 'Viol') renderViolations();
-    else renderMorningLate();
-
+    if (type === 'Abs') renderAbsence(); else if (type === 'Viol') renderViolations(); else renderMorningLate();
   } catch (err) { console.error(err); alert('تعذر تحميل البيانات'); }
 }
 
 function renderAbsence() {
-  const table = document.querySelector('#absenceSection table'); showTable(table.id);
   const tbody = document.getElementById('studentsBodyAbs');
   tbody.innerHTML = '';
   state.Abs.students.forEach((student, index) => {
@@ -235,7 +215,6 @@ function renderAbsence() {
 }
 
 function renderViolations() {
-  const table = document.querySelector('#violationSection table'); showTable(table.id);
   const tbody = document.getElementById('studentsBodyViol');
   tbody.innerHTML = '';
   const violations = [ '', 'النوم أثناء الحصص', 'عدم الالتزام بالزي المدرسي', 'الإساءة بالقول لأحد زملائه', 'الإهمال في أداء الوجبات', 'التأخر عن الحصة الدراسية' ];
@@ -296,7 +275,6 @@ function sendData(rows) {
 }
 
 function renderMorningLate() {
-  const table = document.querySelector('#morningLateSection table'); showTable(table.id);
   const tbody = document.getElementById('studentsBodyMorning');
   tbody.innerHTML = '';
   state.Morning.students.forEach((student, index) => {
@@ -313,12 +291,6 @@ function renderMorningLate() {
     tr.appendChild(tdStatus);
     tbody.appendChild(tr);
   });
-}
-
-
-function showTable(id) {
-  const table = document.getElementById(id);
-  if (table) setTimeout(() => table.classList.add('visible'), 50);
 }
 
 </script>
