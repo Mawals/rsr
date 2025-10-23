@@ -123,7 +123,9 @@ button:hover {
           <select id="sectionSelectAbs"><option value="">اختر</option></select>
         </label>
         <button onclick="loadCSVData('Abs')">عرض الطلاب</button>
-        <button onclick="exportData('Abs')">📤 إرسال</button><span id="loadingAbs" style="display:none; margin-right: 10px; color:#0077b6;">⏳ جاري الإرسال...</span>
+        <button onclick="noAbsentees()">✅ لا يوجد غياب</button>
+<button onclick="exportData('Abs')">📤 إرسال</button>
+<span id="loadingAbs" style="display:none; margin-right: 10px; color:#0077b6;">⏳ جاري الإرسال...</span><span id="loadingAbs" style="display:none; margin-right: 10px; color:#0077b6;">⏳ جاري الإرسال...</span>
       </div>
       <table>
         <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>الحالة</th></tr></thead>
@@ -377,6 +379,51 @@ function resetForm(type) {
 
   // العودة للقائمة الرئيسية
   showSection('mainMenu');
+}
+
+
+function noAbsentees() {
+  const teacher = document.getElementById('teacherNameAbs').value;
+  const grade = document.getElementById('gradeSelectAbs').value;
+  const section = document.getElementById('sectionSelectAbs').value;
+  const loadingSpan = document.getElementById('loadingAbs');
+  const sendBtn = document.querySelector("button[onclick='noAbsentees()']");
+
+  if (!teacher || !grade || !section) {
+    alert("يرجى إدخال اسم المعلم واختيار الصف والشعبة أولاً");
+    return;
+  }
+
+  if (loadingSpan) loadingSpan.style.display = 'inline';
+  if (sendBtn) sendBtn.disabled = true;
+
+  const rows = [{
+    name: "لا يوجد غياب",
+    phone: "",
+    message: `لا يوجد غياب في الصف ${grade} / ${section} - المعلم: ${teacher}`
+  }];
+
+  fetch(EXPORT_WEBAPP_URLS['Abs'], {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(rows)
+  }).then(() => {
+    if (loadingSpan) loadingSpan.textContent = '✅ تم الإرسال بنجاح';
+    setTimeout(() => {
+      if (loadingSpan) {
+        loadingSpan.style.display = 'none';
+        loadingSpan.textContent = '⏳ جاري الإرسال...';
+      }
+    }, 1500);
+    if (sendBtn) sendBtn.disabled = false;
+    resetForm('Abs');
+  }).catch(err => {
+    alert('❌ فشل الإرسال');
+    console.error(err);
+    if (loadingSpan) loadingSpan.style.display = 'none';
+    if (sendBtn) sendBtn.disabled = false;
+  });
 }
 
 </script>
