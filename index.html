@@ -270,12 +270,21 @@ function exportData(type) {
     const rows = viols.map((s, i) => ({ serial: i + 1, phone: s.phone, name: s.name, message: `ولي أمر الطالب ${s.name}، تم تسجيل مخالفة: (${state.Viol.violations[s.id]}) في الصف ${grade}/${section} بتاريخ ${today}. — ${teacher}` }));
     sendData(rows, type);
   }
-}
-
 function sendData(rows, type) {
-  fetch(EXPORT_WEBAPP_URLS[type], { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(rows) })
-    .then(() => alert('✅ تم إرسال البيانات بنجاح'))
-    .catch(err => { alert('❌ فشل الإرسال'); console.error(err); });
+  fetch(EXPORT_WEBAPP_URLS[type], {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(rows)
+  })
+    .then(() => {
+      alert('✅ تم إرسال البيانات بنجاح');
+      resetForm(type); // ⬅️ هذا السطر هو المفتاح
+    })
+    .catch(err => {
+      alert('❌ فشل الإرسال');
+      console.error(err);
+    });
 }
 
 function renderMorningLate() {
