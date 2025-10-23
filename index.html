@@ -5,7 +5,6 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>منصة متابعة الطلبة بمدرسة معولة بن شمس</title>
 <style>
-.hidden { display: none; }
   body { font-family: 'Tajawal', sans-serif; background: #e6f4ff; color: #111; padding: 0; margin: 0; direction: rtl; }
   h2 { margin: 0; padding: 0; }
   .menu-container { text-align: center; padding: 60px 20px; }
@@ -68,8 +67,6 @@
         </label>
         <button onclick="loadCSVData('Abs')">عرض الطلاب</button>
         <button onclick="exportData('Abs')">📤 إرسال</button><span id="loadingAbs" style="display:none; margin-right: 10px; color:#0077b6;">⏳ جاري الإرسال...</span>
-<span id="loadingAbs" style="display:none; margin-right: 10px; color:#0077b6;">⏳ جاري الإرسال...</span>
-
       </div>
       <table>
         <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>الحالة</th></tr></thead>
@@ -276,24 +273,12 @@ function exportData(type) {
 }
 
 function sendData(rows, type) {
-  const loadingSpan = document.getElementById('loading' + type);
-  if (loadingSpan) loadingSpan.style.display = 'inline';
-
   fetch(EXPORT_WEBAPP_URLS[type], {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(rows)
   }).then(() => {
-    alert('✅ تم إرسال البيانات بنجاح');
-    if (loadingSpan) loadingSpan.style.display = 'none';
-    resetForm(type);
-  }).catch(err => {
-    alert('❌ فشل الإرسال');
-    console.error(err);
-    if (loadingSpan) loadingSpan.style.display = 'none';
-  });
-}.then(() => {
     alert('✅ تم إرسال البيانات بنجاح');
     resetForm(type);
   })
