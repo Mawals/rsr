@@ -12,6 +12,7 @@
   .menu-btn:hover { transform: scale(1.05); }
   .absence-btn { background-color: #16a34a; }
   .violation-btn { background-color: #dc2626; }
+  .morning-btn { background-color: #0077b6; }
   .hidden { display: none; }
   .top-bar { background-color: #b3e0ff; color: #004b80; display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
   .top-bar h2 { display: flex; align-items: center; font-size: 22px; }
@@ -35,6 +36,8 @@
     <h2>منصة متابعة الطلبة بمدرسة معولة بن شمس</h2>
     <button class="menu-btn absence-btn" onclick="showSection('absenceSection')">🟩 تسجيل الغياب</button>
     <button class="menu-btn violation-btn" onclick="showSection('violationSection')">🟥 تسجيل المخالفات</button>
+    <button class="menu-btn morning-btn" onclick="showSection('morningLateSection')">🔵 التأخر الصباحي</button>
+
   </div>
 
   <!-- صفحة الغياب -->
@@ -71,6 +74,43 @@
       </table>
     </div>
   </div>
+
+  
+  <!-- صفحة التأخر الصباحي -->
+  <div id="morningLateSection" class="hidden">
+    <div class="top-bar">
+      <button class="back-btn" onclick="showSection('mainMenu')">🏠 رجوع</button>
+      <h2><span class="icon">🎓</span>تسجيل التأخر الصباحي للطلبة</h2>
+    </div>
+    <div class="section-content">
+      <div class="controls">
+        <label>اسم المعلم: <input id="teacherNameMorning" placeholder="اكتب اسم المعلم" type="text"/></label>
+        <label>الصف:
+          <select id="gradeSelectMorning" onchange="updateSections('Morning')">
+            <option value="">اختر</option>
+            <option value="5">الصف الخامس</option>
+            <option value="6">الصف السادس</option>
+            <option value="7">الصف السابع</option>
+            <option value="8">الصف الثامن</option>
+            <option value="9">الصف التاسع</option>
+            <option value="10">الصف العاشر</option>
+            <option value="11">الصف الحادي عشر</option>
+            <option value="12">الصف الثاني عشر</option>
+          </select>
+        </label>
+        <label>الشعبة:
+          <select id="sectionSelectMorning"><option value="">اختر</option></select>
+        </label>
+        <button onclick="loadCSVData('Morning')">عرض الطلاب</button>
+        <button onclick="exportData('Morning')">📤 إرسال</button>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>الحالة</th></tr></thead>
+        <tbody id="studentsBodyMorning"><tr><td colspan="4">بانتظار تحميل البيانات...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
 
   <!-- صفحة المخالفات -->
   <div id="violationSection" class="hidden">
@@ -114,10 +154,10 @@ const EXPORT_WEBAPP_URLS = {
   Viol: 'https://script.google.com/macros/s/AKfycbzq5E5GE6_14b_gHiCWs6JKPMIJeY_lKd2yCukKaxcHsTi34RuG_TB6KlJCfx9dUdqh/exec',
   Morning: 'https://script.google.com/macros/s/AKfycbzpaxD-UhsfHVgC7KzGa3YPRvyZV1O_M0U_IdmdURbhHmpy-VW1ZZx0du_uehb9HoPe/exec'
 };
-const state = { Abs: {students: [], attendance: {}}, Viol: {students: [], violations: {}} };
+const state = { Abs: {students: [], attendance: {}}, Viol: {students: [], violations: {}}, Morning: {students: [], status: {}} };
 
 function showSection(id) {
-  document.querySelectorAll('#mainMenu, #absenceSection, #violationSection').forEach(div => div.classList.add('hidden'));
+  document.querySelectorAll('#mainMenu, #absenceSection, #violationSection, #morningLateSection').forEach(div => div.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
 }
 
@@ -155,7 +195,7 @@ async function loadCSVData(type) {
     }).filter(s => s.grade === grade && s.section === section);
 
     state[type].students = students;
-    if (type === 'Abs') renderAbsence(); else renderViolations();
+    if (type === 'Abs') renderAbsence(); else if (type === 'Viol') renderViolations(); else renderMorningLate();
   } catch (err) { console.error(err); alert('تعذر تحميل البيانات'); }
 }
 
@@ -210,20 +250,53 @@ function exportData(type) {
     const absents = state.Abs.students.filter(s => state.Abs.attendance[s.id] === false);
     if (!absents.length) return alert('لا يوجد غياب لتصديره.');
     const rows = absents.map((s, i) => ({ serial: i + 1, phone: s.phone, name: s.name, message: `ولي أمر الطالب ${s.name}، نعلمكم بغياب ابنكم عن الصف ${grade}/${section} بتاريخ ${today}. — ${teacher}` }));
-    sendData(rows);
-  } else {
+    sendData(rows, type);
+  } 
+  else if (type === 'Morning') {
+    const lateStudents = state.Morning.students.filter(s => state.Morning.status[s.id] === false);
+    if (!lateStudents.length) return alert('لا يوجد طلاب متأخرين.');
+    const rows = lateStudents.map((s, i) => ({
+      serial: i + 1,
+      phone: s.phone,
+      name: s.name,
+      message: `ولي أمر الطالب ${s.name}، نعلمكم بتأخر ابنكم عن الحضور للمدرسة صباحًا بتاريخ ${today}. — ${teacher}`
+    }));
+    sendData(rows, type);
+  }
+
+  else {
     const viols = state.Viol.students.filter(s => state.Viol.violations[s.id] && state.Viol.violations[s.id] !== '');
     if (!viols.length) return alert('لم يتم اختيار أي مخالفات.');
     const rows = viols.map((s, i) => ({ serial: i + 1, phone: s.phone, name: s.name, message: `ولي أمر الطالب ${s.name}، تم تسجيل مخالفة: (${state.Viol.violations[s.id]}) في الصف ${grade}/${section} بتاريخ ${today}. — ${teacher}` }));
-    sendData(rows);
+    sendData(rows, type);
   }
 }
 
-function sendData(rows) {
+function sendData(rows, type) {
   fetch(EXPORT_WEBAPP_URLS[type], { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(rows) })
     .then(() => alert('✅ تم إرسال البيانات بنجاح'))
     .catch(err => { alert('❌ فشل الإرسال'); console.error(err); });
 }
+
+function renderMorningLate() {
+  const tbody = document.getElementById('studentsBodyMorning');
+  tbody.innerHTML = '';
+  state.Morning.students.forEach((student, index) => {
+    if (!(student.id in state.Morning.status)) state.Morning.status[student.id] = true;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${index + 1}</td><td>${student.name}</td><td>${student.phone}</td>`;
+    const tdStatus = document.createElement('td');
+    const btn = document.createElement('button');
+    const early = state.Morning.status[student.id];
+    btn.textContent = early ? 'مبكر' : 'متأخر';
+    btn.className = early ? 'present' : 'absent';
+    btn.onclick = () => { state.Morning.status[student.id] = !early; renderMorningLate(); };
+    tdStatus.appendChild(btn);
+    tr.appendChild(tdStatus);
+    tbody.appendChild(tr);
+  });
+}
+
 </script>
 </body>
 </html>
