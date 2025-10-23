@@ -5,6 +5,12 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>منصة متابعة الطلبة بمدرسة معولة بن شمس</title>
 <style>
+
+.fade-section { opacity: 0; transition: opacity 1s ease-in-out; }
+.fade-section.active { opacity: 1; }
+table { opacity: 0; transition: opacity 1s ease-in-out; }
+table.visible { opacity: 1; }
+
   body { font-family: 'Tajawal', sans-serif; background: #e6f4ff; color: #111; padding: 0; margin: 0; direction: rtl; }
   h2 { margin: 0; padding: 0; }
   .menu-container { text-align: center; padding: 60px 20px; }
@@ -152,10 +158,19 @@ const SHEET_URLS = ['https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ3CGPHmBF
 const EXPORT_WEBAPP_URL = '';
 const state = { Abs: {students: [], attendance: {}}, Viol: {students: [], violations: {}}, Morning: {students: [], status: {}} };
 
+
 function showSection(id) {
-  document.querySelectorAll('#mainMenu, #absenceSection, #violationSection, #morningLateSection').forEach(div => div.classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
+  document.querySelectorAll('.fade-section, .menu-container').forEach(sec => {
+    sec.classList.remove('active');
+    setTimeout(() => sec.classList.add('hidden'), 900);
+  });
+  const next = document.getElementById(id);
+  setTimeout(() => {
+    next.classList.remove('hidden');
+    setTimeout(() => next.classList.add('active'), 50);
+  }, 950);
 }
+
 
 function updateSections(type) {
   const grade = document.getElementById('gradeSelect' + type).value;
@@ -200,6 +215,7 @@ async function loadCSVData(type) {
 }
 
 function renderAbsence() {
+  const table = document.querySelector('#absenceSection table'); showTable(table.id);
   const tbody = document.getElementById('studentsBodyAbs');
   tbody.innerHTML = '';
   state.Abs.students.forEach((student, index) => {
@@ -219,6 +235,7 @@ function renderAbsence() {
 }
 
 function renderViolations() {
+  const table = document.querySelector('#violationSection table'); showTable(table.id);
   const tbody = document.getElementById('studentsBodyViol');
   tbody.innerHTML = '';
   const violations = [ '', 'النوم أثناء الحصص', 'عدم الالتزام بالزي المدرسي', 'الإساءة بالقول لأحد زملائه', 'الإهمال في أداء الوجبات', 'التأخر عن الحصة الدراسية' ];
@@ -279,6 +296,7 @@ function sendData(rows) {
 }
 
 function renderMorningLate() {
+  const table = document.querySelector('#morningLateSection table'); showTable(table.id);
   const tbody = document.getElementById('studentsBodyMorning');
   tbody.innerHTML = '';
   state.Morning.students.forEach((student, index) => {
@@ -295,6 +313,12 @@ function renderMorningLate() {
     tr.appendChild(tdStatus);
     tbody.appendChild(tr);
   });
+}
+
+
+function showTable(id) {
+  const table = document.getElementById(id);
+  if (table) setTimeout(() => table.classList.add('visible'), 50);
 }
 
 </script>
