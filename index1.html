@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>منصة متابعة الطلبة بمدرسة معولة بن شمس</title>
+<style>
+  body { font-family: 'Tajawal', sans-serif; background: #e6f4ff; color: #111; padding: 0; margin: 0; direction: rtl; }
+  h2 { margin: 0; padding: 0; }
+  .menu-container { text-align: center; padding: 60px 20px; }
+  .menu-btn { display: inline-block; padding: 20px 40px; margin: 20px; font-size: 20px; border-radius: 10px; cursor: pointer; color: white; border: none; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: transform 0.2s; }
+  .menu-btn:hover { transform: scale(1.05); }
+  .absence-btn { background-color: #16a34a; }
+  .violation-btn { background-color: #dc2626; }
+  .hidden { display: none; }
+  .top-bar { background-color: #b3e0ff; color: #004b80; display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+  .top-bar h2 { display: flex; align-items: center; font-size: 22px; }
+  .top-bar h2 span.icon { margin-right: 8px; font-size: 24px; }
+  .back-btn { background-color: #5b9bd5; color: white; border: none; border-radius: 8px; padding: 8px 16px; cursor: pointer; font-size: 14px; }
+  .back-btn:hover { background-color: #468cc4; }
+  .section-content { padding: 20px; text-align: center; }
+  table { width: 100%; border-collapse: collapse; background: #fff; margin-top: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); overflow: hidden; }
+  th, td { padding: 10px; border: 1px solid #ccc; text-align: right; }
+  th { background: #d9f0ff; color: #003f66; }
+  button, select, input { padding: 6px 12px; margin-left: 10px; border: 1px solid #ccc; border-radius: 6px; }
+  button { cursor: pointer; }
+  .present { background: #16a34a; color: #fff; }
+  .absent { background: #dc2626; color: #fff; }
+  .controls { margin-bottom: 20px; }
+</style>
+</head>
+<body>
+  <!-- الصفحة الرئيسية -->
+  <div id="mainMenu" class="menu-container">
+    <h2>منصة متابعة الطلبة بمدرسة معولة بن شمس</h2>
+    <button class="menu-btn absence-btn" onclick="showSection('absenceSection')">🟩 تسجيل الغياب</button>
+    <button class="menu-btn violation-btn" onclick="showSection('violationSection')">🟥 تسجيل المخالفات</button>
+  </div>
+
+  <!-- صفحة الغياب -->
+  <div id="absenceSection" class="hidden">
+    <div class="top-bar">
+      <button class="back-btn" onclick="showSection('mainMenu')">🏠 رجوع</button>
+      <h2><span class="icon">🎓</span>تسجيل غياب الطلبة بمدرسة معولة بن شمس</h2>
+    </div>
+    <div class="section-content">
+      <div class="controls">
+        <label>اسم المعلم: <input id="teacherNameAbs" placeholder="اكتب اسم المعلم" type="text"/></label>
+        <label>الصف:
+          <select id="gradeSelectAbs" onchange="updateSections('Abs')">
+            <option value="">اختر</option>
+            <option value="5">الصف الخامس</option>
+            <option value="6">الصف السادس</option>
+            <option value="7">الصف السابع</option>
+            <option value="8">الصف الثامن</option>
+            <option value="9">الصف التاسع</option>
+            <option value="10">الصف العاشر</option>
+            <option value="11">الصف الحادي عشر</option>
+            <option value="12">الصف الثاني عشر</option>
+          </select>
+        </label>
+        <label>الشعبة:
+          <select id="sectionSelectAbs"><option value="">اختر</option></select>
+        </label>
+        <button onclick="loadCSVData('Abs')">عرض الطلاب</button>
+        <button onclick="exportData('Abs')">📤 إرسال</button>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>الحالة</th></tr></thead>
+        <tbody id="studentsBodyAbs"><tr><td colspan="4">بانتظار تحميل البيانات...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- صفحة المخالفات -->
+  <div id="violationSection" class="hidden">
+    <div class="top-bar">
+      <button class="back-btn" onclick="showSection('mainMenu')">🏠 رجوع</button>
+      <h2><span class="icon">🎓</span>تسجيل مخالفات الطلبة بمدرسة معولة بن شمس</h2>
+    </div>
+    <div class="section-content">
+      <div class="controls">
+        <label>اسم المعلم: <input id="teacherNameViol" placeholder="اكتب اسم المعلم" type="text"/></label>
+        <label>الصف:
+          <select id="gradeSelectViol" onchange="updateSections('Viol')">
+            <option value="">اختر</option>
+            <option value="5">الصف الخامس</option>
+            <option value="6">الصف السادس</option>
+            <option value="7">الصف السابع</option>
+            <option value="8">الصف الثامن</option>
+            <option value="9">الصف التاسع</option>
+            <option value="10">الصف العاشر</option>
+            <option value="11">الصف الحادي عشر</option>
+            <option value="12">الصف الثاني عشر</option>
+          </select>
+        </label>
+        <label>الشعبة:
+          <select id="sectionSelectViol"><option value="">اختر</option></select>
+        </label>
+        <button onclick="loadCSVData('Viol')">عرض الطلاب</button>
+        <button onclick="exportData('Viol')">📤 إرسال</button>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>المخالفة</th></tr></thead>
+        <tbody id="studentsBodyViol"><tr><td colspan="4">بانتظار تحميل البيانات...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+const SHEET_URLS = ['https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ3CGPHmBFZ8myoys49bw1MLrC_tfdcKuZ-ZBSMczVqLZbxzSe-LZbyqCDv2YZLQ/pub?gid=626465739&single=true&output=csv'];
+const EXPORT_WEBAPP_URL = '';
+const state = { Abs: {students: [], attendance: {}}, Viol: {students: [], violations: {}} };
+
+function showSection(id) {
+  document.querySelectorAll('#mainMenu, #absenceSection, #violationSection').forEach(div => div.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function updateSections(type) {
+  const grade = document.getElementById('gradeSelect' + type).value;
+  const sectionSelect = document.getElementById('sectionSelect' + type);
+  sectionSelect.innerHTML = '<option value="">اختر</option>';
+  let count = 3;
+  if (grade === '10') count = 4; else if (grade === '11') count = 6; else if (grade === '12') count = 5;
+  for (let i = 1; i <= count; i++) {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = 'الشعبة ' + i;
+    sectionSelect.appendChild(opt);
+  }
+}
+
+async function loadCSVData(type) {
+  const grade = document.getElementById('gradeSelect' + type).value.trim();
+  const section = document.getElementById('sectionSelect' + type).value.trim();
+  if (!grade || !section) { alert('يرجى اختيار الصف والشعبة'); return; }
+
+  try {
+    let combinedText = '';
+    for (const url of SHEET_URLS) {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const text = await res.text();
+      combinedText += text.trim() + '\n';
+    }
+    const lines = combinedText.trim().split('\n');
+    const students = lines.slice(1).map((line, i) => {
+      const cols = line.split(',');
+      return { id: i + 1, phone: cols[0]?.trim() || '', name: cols[1]?.trim() || '', grade: cols[3]?.trim() || '', section: cols[4]?.trim() || '' };
+    }).filter(s => s.grade === grade && s.section === section);
+
+    state[type].students = students;
+    if (type === 'Abs') renderAbsence(); else renderViolations();
+  } catch (err) { console.error(err); alert('تعذر تحميل البيانات'); }
+}
+
+function renderAbsence() {
+  const tbody = document.getElementById('studentsBodyAbs');
+  tbody.innerHTML = '';
+  state.Abs.students.forEach((student, index) => {
+    if (!(student.id in state.Abs.attendance)) state.Abs.attendance[student.id] = true;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${index + 1}</td><td>${student.name}</td><td>${student.phone}</td>`;
+    const tdStatus = document.createElement('td');
+    const btn = document.createElement('button');
+    const present = state.Abs.attendance[student.id];
+    btn.textContent = present ? 'حاضر' : 'غائب';
+    btn.className = present ? 'present' : 'absent';
+    btn.onclick = () => { state.Abs.attendance[student.id] = !present; renderAbsence(); };
+    tdStatus.appendChild(btn);
+    tr.appendChild(tdStatus);
+    tbody.appendChild(tr);
+  });
+}
+
+function renderViolations() {
+  const tbody = document.getElementById('studentsBodyViol');
+  tbody.innerHTML = '';
+  const violations = [ '', 'النوم أثناء الحصص', 'عدم الالتزام بالزي المدرسي', 'الإساءة بالقول لأحد زملائه', 'الإهمال في أداء الوجبات', 'التأخر عن الحصة الدراسية' ];
+  state.Viol.students.forEach((student, index) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${index + 1}</td><td>${student.name}</td><td>${student.phone}</td>`;
+    const tdViolation = document.createElement('td');
+    const select = document.createElement('select');
+    violations.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v; opt.textContent = v;
+      if (state.Viol.violations[student.id] === v) opt.selected = true;
+      select.appendChild(opt);
+    });
+    select.onchange = () => state.Viol.violations[student.id] = select.value;
+    tdViolation.appendChild(select);
+    tr.appendChild(tdViolation);
+    tbody.appendChild(tr);
+  });
+}
+
+function exportData(type) {
+  const teacher = document.getElementById('teacherName' + (type === 'Abs' ? 'Abs' : 'Viol')).value.trim() || 'المعلم';
+  const grade = document.getElementById('gradeSelect' + type).value;
+  const section = document.getElementById('sectionSelect' + type).value;
+  const today = new Date().toLocaleDateString('ar-EG');
+
+  if (type === 'Abs') {
+    const absents = state.Abs.students.filter(s => state.Abs.attendance[s.id] === false);
+    if (!absents.length) return alert('لا يوجد غياب لتصديره.');
+    const rows = absents.map((s, i) => ({ serial: i + 1, phone: s.phone, name: s.name, message: `ولي أمر الطالب ${s.name}، نعلمكم بغياب ابنكم عن الصف ${grade}/${section} بتاريخ ${today}. — ${teacher}` }));
+    sendData(rows);
+  } else {
+    const viols = state.Viol.students.filter(s => state.Viol.violations[s.id] && state.Viol.violations[s.id] !== '');
+    if (!viols.length) return alert('لم يتم اختيار أي مخالفات.');
+    const rows = viols.map((s, i) => ({ serial: i + 1, phone: s.phone, name: s.name, message: `ولي أمر الطالب ${s.name}، تم تسجيل مخالفة: (${state.Viol.violations[s.id]}) في الصف ${grade}/${section} بتاريخ ${today}. — ${teacher}` }));
+    sendData(rows);
+  }
+}
+
+function sendData(rows) {
+  fetch(EXPORT_WEBAPP_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(rows) })
+    .then(() => alert('✅ تم إرسال البيانات بنجاح'))
+    .catch(err => { alert('❌ فشل الإرسال'); console.error(err); });
+}
+</script>
+</body>
+</html>
