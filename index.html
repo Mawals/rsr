@@ -12,6 +12,7 @@
   .menu-btn:hover { transform: scale(1.05); }
   .absence-btn { background-color: #16a34a; }
   .violation-btn { background-color: #dc2626; }
+  .late-btn { background-color: #005f99; }
   .hidden { display: none; }
   .top-bar { background-color: #b3e0ff; color: #004b80; display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
   .top-bar h2 { display: flex; align-items: center; font-size: 22px; }
@@ -26,6 +27,8 @@
   button { cursor: pointer; }
   .present { background: #16a34a; color: #fff; }
   .absent { background: #dc2626; color: #fff; }
+  .early { background: #16a34a; color: #fff; }
+  .late { background: #dc2626; color: #fff; }
   .controls { margin-bottom: 20px; }
 </style>
 </head>
@@ -35,6 +38,7 @@
     <h2>منصة متابعة الطلبة بمدرسة معولة بن شمس</h2>
     <button class="menu-btn absence-btn" onclick="showSection('absenceSection')">🟩 تسجيل الغياب</button>
     <button class="menu-btn violation-btn" onclick="showSection('violationSection')">🟥 تسجيل المخالفات</button>
+    <button class="menu-btn late-btn" onclick="showSection('lateSection')">🔵 تسجيل المتأخرين</button>
   </div>
 
   <!-- صفحة الغياب -->
@@ -107,13 +111,48 @@
     </div>
   </div>
 
+  <!-- صفحة المتأخرين -->
+  <div id="lateSection" class="hidden">
+    <div class="top-bar">
+      <button class="back-btn" onclick="showSection('mainMenu')">🏠 رجوع</button>
+      <h2><span class="icon">🎓</span>تسجيل تأخر الطلبة بمدرسة معولة بن شمس</h2>
+    </div>
+    <div class="section-content">
+      <div class="controls">
+        <label>اسم المعلم: <input id="teacherNameLate" placeholder="اكتب اسم المعلم" type="text"/></label>
+        <label>الصف:
+          <select id="gradeSelectLate" onchange="updateSections('Late')">
+            <option value="">اختر</option>
+            <option value="5">الصف الخامس</option>
+            <option value="6">الصف السادس</option>
+            <option value="7">الصف السابع</option>
+            <option value="8">الصف الثامن</option>
+            <option value="9">الصف التاسع</option>
+            <option value="10">الصف العاشر</option>
+            <option value="11">الصف الحادي عشر</option>
+            <option value="12">الصف الثاني عشر</option>
+          </select>
+        </label>
+        <label>الشعبة:
+          <select id="sectionSelectLate"><option value="">اختر</option></select>
+        </label>
+        <button onclick="loadCSVData('Late')">عرض الطلاب</button>
+        <button onclick="exportData('Late')">📤 إرسال</button>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>الحالة</th></tr></thead>
+        <tbody id="studentsBodyLate"><tr><td colspan="4">بانتظار تحميل البيانات...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
 <script>
 const SHEET_URLS = ['https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ3CGPHmBFZ8myoys49bw1MLrC_tfdcKuZ-ZBSMczVqLZbxzSe-LZbyqCDv2YZLQ/pub?gid=626465739&single=true&output=csv'];
 const EXPORT_WEBAPP_URL = '';
-const state = { Abs: {students: [], attendance: {}}, Viol: {students: [], violations: {}} };
+const state = { Abs: {students: [], attendance: {}}, Viol: {students: [], violations: {}}, Late: {students: [], status: {}} };
 
 function showSection(id) {
-  document.querySelectorAll('#mainMenu, #absenceSection, #violationSection').forEach(div => div.classList.add('hidden'));
+  document.querySelectorAll('#mainMenu, #absenceSection, #violationSection, #lateSection').forEach(div => div.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
 }
 
@@ -151,7 +190,9 @@ async function loadCSVData(type) {
     }).filter(s => s.grade === grade && s.section === section);
 
     state[type].students = students;
-    if (type === 'Abs') renderAbsence(); else renderViolations();
+    if (type === 'Abs') renderAbsence();
+    else if (type === 'Viol') renderViolations();
+    else renderLate();
   } catch (err) { console.error(err); alert('تعذر تحميل البيانات'); }
 }
 
@@ -196,8 +237,27 @@ function renderViolations() {
   });
 }
 
+function renderLate() {
+  const tbody = document.getElementById('studentsBodyLate');
+  tbody.innerHTML = '';
+  state.Late.students.forEach((student, index) => {
+    if (!(student.id in state.Late.status)) state.Late.status[student.id] = true;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${index + 1}</td><td>${student.name}</td><td>${student.phone}</td>`;
+    const tdStatus = document.createElement('td');
+    const btn = document.createElement('button');
+    const early = state.Late.status[student.id];
+    btn.textContent = early ? 'مبكر' : 'متأخر';
+    btn.className = early ? 'early' : 'late';
+    btn.onclick = () => { state.Late.status[student.id] = !early; renderLate(); };
+    tdStatus.appendChild(btn);
+    tr.appendChild(tdStatus);
+    tbody.appendChild(tr);
+  });
+}
+
 function exportData(type) {
-  const teacher = document.getElementById('teacherName' + (type === 'Abs' ? 'Abs' : 'Viol')).value.trim() || 'المعلم';
+  const teacher = document.getElementById('teacherName' + (type === 'Abs' ? 'Abs' : type === 'Viol' ? 'Viol' : 'Late')).value.trim() || 'المعلم';
   const grade = document.getElementById('gradeSelect' + type).value;
   const section = document.getElementById('sectionSelect' + type).value;
   const today = new Date().toLocaleDateString('ar-EG');
@@ -207,19 +267,5 @@ function exportData(type) {
     if (!absents.length) return alert('لا يوجد غياب لتصديره.');
     const rows = absents.map((s, i) => ({ serial: i + 1, phone: s.phone, name: s.name, message: `ولي أمر الطالب ${s.name}، نعلمكم بغياب ابنكم عن الصف ${grade}/${section} بتاريخ ${today}. — ${teacher}` }));
     sendData(rows);
-  } else {
-    const viols = state.Viol.students.filter(s => state.Viol.violations[s.id] && state.Viol.violations[s.id] !== '');
-    if (!viols.length) return alert('لم يتم اختيار أي مخالفات.');
-    const rows = viols.map((s, i) => ({ serial: i + 1, phone: s.phone, name: s.name, message: `ولي أمر الطالب ${s.name}، تم تسجيل مخالفة: (${state.Viol.violations[s.id]}) في الصف ${grade}/${section} بتاريخ ${today}. — ${teacher}` }));
-    sendData(rows);
-  }
-}
-
-function sendData(rows) {
-  fetch(EXPORT_WEBAPP_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(rows) })
-    .then(() => alert('✅ تم إرسال البيانات بنجاح'))
-    .catch(err => { alert('❌ فشل الإرسال'); console.error(err); });
-}
-</script>
-</body>
-</html>
+  } else if (type === 'Viol') {
+    const viols = state.Viol.students.filter(s => state.Viol.violations
