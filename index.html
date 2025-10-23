@@ -5,6 +5,40 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>منصة متابعة الطلبة بمدرسة معولة بن شمس</title>
 <style>
+/* خلفية ناعمة */
+body {
+  background: linear-gradient(to bottom, #e6f0ff, #ffffff);
+}
+
+/* حركة Fade in */
+.fade-in {
+  animation: fadeIn 1s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* تحسين الأزرار */
+button {
+  font-size: 18px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* استجابة الهاتف */
+@media (max-width: 600px) {
+  button {
+    width: 90%;
+    margin: 10px auto;
+    display: block;
+  }
+}
   body { font-family: 'Tajawal', sans-serif; background: #e6f4ff; color: #111; padding: 0; margin: 0; direction: rtl; }
   h2 { margin: 0; padding: 0; }
   .menu-container { text-align: center; padding: 60px 20px; }
@@ -33,13 +67,14 @@
 <body>
   <!-- الصفحة الرئيسية -->
   <div id="mainMenu" class="menu-container">
-    <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 20px;">
-  <img src="logo_no_bg.png" alt="شعار المدرسة" style="width: 100px; height: auto;">
-  <h2>منصة متابعة الطلبة بمدرسة معولة بن شمس</h2>
+    <div style="text-align: center; margin-top: 20px;" class="fade-in">
+  <img src="logo_no_bg.png" alt="شعار المدرسة" style="width: 120px; height: auto; margin-bottom: 10px;">
+  <h2 style="font-size: 24px; font-weight: bold;">منصة متابعة الطلبة بمدرسة معولة بن شمس</h2>
+<p style="font-size: 16px; margin-top: 5px; color: #333;">للعام الدراسي 2025/2026</p>
 </div>
-    <button class="menu-btn absence-btn" onclick="showSection('absenceSection')">🟩 تسجيل الغياب</button>
-    <button class="menu-btn violation-btn" onclick="showSection('violationSection')">🟥 تسجيل المخالفات</button>
-    <button class="menu-btn morning-btn" onclick="showSection('morningLateSection')">🔵 التأخر الصباحي</button>
+    <button class="menu-btn absence-btn" onclick="showSection('absenceSection')">🟩 📋 تسجيل الغياب</button>
+    <button class="menu-btn violation-btn" onclick="showSection('violationSection')">🟥 ⚠️ تسجيل المخالفات</button>
+    <button class="menu-btn morning-btn" onclick="showSection('morningLateSection')">🔵 ⏰ التأخر الصباحي</button>
 
   </div>
 
@@ -79,11 +114,11 @@
   </div>
 
   
-  <!-- صفحة التأخر الصباحي -->
+  <!-- صفحة ⏰ التأخر الصباحي -->
   <div id="morningLateSection" class="hidden">
     <div class="top-bar">
       <button class="back-btn" onclick="showSection('mainMenu')">🏠 رجوع</button>
-      <h2><span class="icon">🎓</span>تسجيل التأخر الصباحي للطلبة</h2>
+      <h2><span class="icon">🎓</span>تسجيل ⏰ التأخر الصباحي للطلبة</h2>
     </div>
     <div class="section-content">
       <div class="controls">
