@@ -66,7 +66,7 @@
           <select id="sectionSelectAbs"><option value="">اختر</option></select>
         </label>
         <button onclick="loadCSVData('Abs')">عرض الطلاب</button>
-        <button onclick="exportData('Abs')">📤 إرسال</button>
+        <button onclick="exportData('Abs')">📤 إرسال</button> <span id="loadingAbs" style="display:none;">⏳ جارٍ الإرسال...</span>
       </div>
       <table>
         <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>الحالة</th></tr></thead>
@@ -102,7 +102,7 @@
           <select id="sectionSelectMorning"><option value="">اختر</option></select>
         </label>
         <button onclick="loadCSVData('Morning')">عرض الطلاب</button>
-        <button onclick="exportData('Morning')">📤 إرسال</button>
+        <button onclick="exportData('Morning')">📤 إرسال</button> <span id="loadingMorning" style="display:none;">⏳ جارٍ الإرسال...</span>
       </div>
       <table>
         <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>الحالة</th></tr></thead>
@@ -138,7 +138,7 @@
           <select id="sectionSelectViol"><option value="">اختر</option></select>
         </label>
         <button onclick="loadCSVData('Viol')">عرض الطلاب</button>
-        <button onclick="exportData('Viol')">📤 إرسال</button>
+        <button onclick="exportData('Viol')">📤 إرسال</button> <span id="loadingViol" style="display:none;">⏳ جارٍ الإرسال...</span>
       </div>
       <table>
         <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>المخالفة</th></tr></thead>
@@ -241,6 +241,13 @@ function renderViolations() {
 }
 
 function exportData(type) {
+
+  // منع إعادة الضغط على زر الإرسال
+  const sendBtn = document.querySelector("button[onclick='exportData(\'" + type + "\')']");
+  const loadingSpan = document.getElementById("loading" + type);
+  if (sendBtn) sendBtn.disabled = true;
+  if (loadingSpan) loadingSpan.style.display = 'inline';
+
   const teacher = document.getElementById('teacherName' + (type === 'Abs' ? 'Abs' : 'Viol')).value.trim() || 'المعلم';
   const grade = document.getElementById('gradeSelect' + type).value;
   const section = document.getElementById('sectionSelect' + type).value;
@@ -320,6 +327,12 @@ function resetForm(type) {
 
   // العودة للقائمة الرئيسية
   showSection('mainMenu');
+
+  const sendBtn = document.querySelector("button[onclick='exportData(\'" + type + "\')']");
+  const loadingSpan = document.getElementById("loading" + type);
+  if (sendBtn) sendBtn.disabled = false;
+  if (loadingSpan) loadingSpan.style.display = 'none';
+
 }
 
 </script>
