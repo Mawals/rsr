@@ -448,6 +448,28 @@ function noAbsentees() {
   });
 }
 
+
+function toggleDesignerInfo() {
+  const info = document.getElementById('designerInfo');
+  info.style.display = info.style.display === 'none' ? 'block' : 'none';
+}
+
 </script>
+<!-- معلومات المصمم -->
+<footer style="text-align: center; padding: 15px; background: #d9f0ff; color: #003f66; font-size: 14px;">
+  👨‍💻 <strong>المصمم: سيف جمال المعولي</strong>
+</footer>
+
+<!-- زر المساعدة ومحتواه -->
+<div style="text-align: center; background: #e0f7ff; padding: 20px;">
+  <button onclick="toggleDesignerInfo()" style="background: #0077b6; color: white; padding: 10px 20px; border-radius: 10px; border: none; font-size: 16px; cursor: pointer;">
+    💡 مساعدة / معلومات المصمم
+  </button>
+  <div id="designerInfo" style="margin-top: 15px; display: none; line-height: 1.8; color: #004b80;">
+    👨‍💻 <strong>المصمم:</strong> سيف جمال المعولي<br>
+    📞 <strong>الهاتف:</strong> <a href="tel:99036615">99036615</a><br>
+    ✉️ <strong>الإيميل:</strong> <a href="mailto:saif2005@moe.om">saif2005@moe.om</a>
+  </div>
+</div>
 </body>
 </html>
