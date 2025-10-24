@@ -335,8 +335,7 @@ function sendData(rows, type) {
   const loadingSpan = document.getElementById('loading' + type);
   const sendBtn = document.querySelector(`button[onclick="exportData('${type}')"]`);
 
-  // ✅ عرض "جاري الإرسال..."
-  if (type === 'Abs' && loadingSpan) {
+  if (loadingSpan) {
     loadingSpan.textContent = '⏳ جاري الإرسال...';
     loadingSpan.style.display = 'inline';
   }
@@ -349,9 +348,9 @@ function sendData(rows, type) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(rows)
   }).then(() => {
-    if (type === 'Abs' && loadingSpan) loadingSpan.textContent = '✅ تم الإرسال بنجاح';
+    if (loadingSpan) loadingSpan.textContent = '✅ تم الإرسال بنجاح';
     setTimeout(() => {
-      if (type === 'Abs' && loadingSpan) {
+      if (loadingSpan) {
         loadingSpan.style.display = 'none';
         loadingSpan.textContent = '⏳ جاري الإرسال...';
       }
@@ -362,7 +361,7 @@ function sendData(rows, type) {
   }).catch(err => {
     alert('❌ فشل الإرسال');
     console.error(err);
-    if (type === 'Abs' && loadingSpan) loadingSpan.style.display = 'none';
+    if (loadingSpan) loadingSpan.style.display = 'none';
     if (sendBtn) sendBtn.disabled = false;
   });
 }
