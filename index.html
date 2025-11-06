@@ -312,7 +312,6 @@ function exportData(type) {
     sendData(rows, type);
   } 
   else if (type === 'Morning') {
-    const teacher = document.getElementById('teacherNameMorning').value.trim() || 'غير معروف';
     const lateStudents = state.Morning.students.filter(s => state.Morning.status[s.id] === false);
     if (!lateStudents.length) return alert('لا يوجد طلاب متأخرين.');
     const rows = lateStudents.map((s, i) => ({
