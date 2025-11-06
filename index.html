@@ -1,10 +1,63 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="icon" href="logo_no_bg.png" type="image/png">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>منصة متابعة الطلبة بمدرسة معولة بن شمس</title>
 <style>
+@media (max-width: 600px) {
+  button {
+    width: 90%;
+    font-size: 18px;
+    margin: 10px auto;
+    display: block;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  img {
+    width: 80px;
+  }
+}
+/* خلفية ناعمة */
+body {
+  background: linear-gradient(to bottom, #e6f0ff, #ffffff);
+}
+
+/* حركة Fade in */
+.fade-in {
+  animation: fadeIn 1s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* تحسين الأزرار */
+button {
+  font-size: 18px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* استجابة الهاتف */
+@media (max-width: 600px) {
+  button {
+    width: 90%;
+    margin: 10px auto;
+    display: block;
+  }
+}
   body { font-family: 'Tajawal', sans-serif; background: #e6f4ff; color: #111; padding: 0; margin: 0; direction: rtl; }
   h2 { margin: 0; padding: 0; }
   .menu-container { text-align: center; padding: 60px 20px; }
@@ -12,7 +65,7 @@
   .menu-btn:hover { transform: scale(1.05); }
   .absence-btn { background-color: #16a34a; }
   .violation-btn { background-color: #dc2626; }
-  .morning-btn { background-color: #0077b6; }
+  .morning-btn { background-color: #6a1b9a; }
   .hidden { display: none; }
   .top-bar { background-color: #b3e0ff; color: #004b80; display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
   .top-bar h2 { display: flex; align-items: center; font-size: 22px; }
@@ -33,10 +86,14 @@
 <body>
   <!-- الصفحة الرئيسية -->
   <div id="mainMenu" class="menu-container">
-    <h2>منصة متابعة الطلبة بمدرسة معولة بن شمس</h2>
-    <button class="menu-btn absence-btn" onclick="showSection('absenceSection')">🟩 تسجيل الغياب</button>
-    <button class="menu-btn violation-btn" onclick="showSection('violationSection')">🟥 تسجيل المخالفات</button>
-    <button class="menu-btn morning-btn" onclick="showSection('morningLateSection')">🔵 التأخر الصباحي</button>
+    <div style="text-align: center; margin-top: 20px;" class="fade-in">
+  <img src="logo_no_bg.png" alt="شعار المدرسة" style="width: 120px; height: auto; margin-bottom: 10px;">
+  <h2 style="font-size: 24px; font-weight: bold;">منصة متابعة الطلبة بمدرسة معولة بن شمس</h2>
+<p style="font-size: 16px; margin-top: 5px; color: #333;">للعام الدراسي 2025/2026</p>
+</div>
+    <button class="menu-btn absence-btn" onclick="showSection('absenceSection')">🟩 📋 تسجيل الغياب</button>
+    <button class="menu-btn violation-btn" onclick="showSection('violationSection')">🟥 ⚠️ تسجيل المخالفات</button>
+    <button class="menu-btn morning-btn" onclick="showSection('morningLateSection')">🔵 ⏰ التأخر الصباحي</button>
 
   </div>
 
@@ -66,7 +123,9 @@
           <select id="sectionSelectAbs"><option value="">اختر</option></select>
         </label>
         <button onclick="loadCSVData('Abs')">عرض الطلاب</button>
-        <button onclick="exportData('Abs')">📤 إرسال</button>
+        <button onclick="noAbsentees()">✅ لا يوجد غياب</button>
+<button onclick="exportData('Abs')">📤 إرسال</button>
+<span id="loadingAbs" style="display:none; margin-right: 10px; color:#0077b6;">⏳ جاري الإرسال...</span>
       </div>
       <table>
         <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>الحالة</th></tr></thead>
@@ -76,11 +135,11 @@
   </div>
 
   
-  <!-- صفحة التأخر الصباحي -->
+  <!-- صفحة ⏰ التأخر الصباحي -->
   <div id="morningLateSection" class="hidden">
     <div class="top-bar">
       <button class="back-btn" onclick="showSection('mainMenu')">🏠 رجوع</button>
-      <h2><span class="icon">🎓</span>تسجيل التأخر الصباحي للطلبة</h2>
+      <h2><span class="icon">🎓</span>تسجيل ⏰ التأخر الصباحي للطلبة</h2>
     </div>
     <div class="section-content">
       <div class="controls">
@@ -102,7 +161,7 @@
           <select id="sectionSelectMorning"><option value="">اختر</option></select>
         </label>
         <button onclick="loadCSVData('Morning')">عرض الطلاب</button>
-        <button onclick="exportData('Morning')">📤 إرسال</button>
+        <button onclick="exportData('Morning')">📤 إرسال</button><span id="loadingMorning" style="display:none; margin-right: 10px; color:#004b80;">⏳ جاري الإرسال...</span>
       </div>
       <table>
         <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>الحالة</th></tr></thead>
@@ -138,7 +197,7 @@
           <select id="sectionSelectViol"><option value="">اختر</option></select>
         </label>
         <button onclick="loadCSVData('Viol')">عرض الطلاب</button>
-        <button onclick="exportData('Viol')">📤 إرسال</button>
+        <button onclick="exportData('Viol')">📤 إرسال</button><span id="loadingViol" style="display:none; margin-right: 10px; color:#dc2626;">⏳ جاري الإرسال...</span>
       </div>
       <table>
         <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>المخالفة</th></tr></thead>
@@ -249,17 +308,18 @@ function exportData(type) {
   if (type === 'Abs') {
     const absents = state.Abs.students.filter(s => state.Abs.attendance[s.id] === false);
     if (!absents.length) return alert('لا يوجد غياب لتصديره.');
-    const rows = absents.map((s, i) => ({ serial: i + 1, phone: s.phone, name: s.name, message: `ولي أمر الطالب ${s.name}، نعلمكم بغياب ابنكم عن الصف ${grade}/${section} بتاريخ ${today}. — ${teacher}` }));
+    const rows = absents.map((s, i) => ({ serial: i + 1, phone: s.phone, name: s.name, message: `ولي أمر الطالب ${s.name}، نعلمكم بغياب ابنكم عن الصف ${grade}/${section} بتاريخ ${today}. —  المعلم : ${teacher}` }));
     sendData(rows, type);
   } 
   else if (type === 'Morning') {
+    const teacher = document.getElementById('teacherNameMorning').value.trim() || 'غير معروف';
     const lateStudents = state.Morning.students.filter(s => state.Morning.status[s.id] === false);
     if (!lateStudents.length) return alert('لا يوجد طلاب متأخرين.');
     const rows = lateStudents.map((s, i) => ({
       serial: i + 1,
       phone: s.phone,
       name: s.name,
-      message: `ولي أمر الطالب ${s.name}، نعلمكم بتأخر ابنكم عن الحضور للمدرسة صباحًا بتاريخ ${today}. — ${teacher}`
+      message: `ولي أمر الطالب ${s.name}، نعلمكم بتأخر ابنكم عن الحضور للمدرسة صباحًا بتاريخ ${today}. —  المعلم : ${teacher}`
     }));
     sendData(rows, type);
   }
@@ -267,22 +327,46 @@ function exportData(type) {
   else {
     const viols = state.Viol.students.filter(s => state.Viol.violations[s.id] && state.Viol.violations[s.id] !== '');
     if (!viols.length) return alert('لم يتم اختيار أي مخالفات.');
-    const rows = viols.map((s, i) => ({ serial: i + 1, phone: s.phone, name: s.name, message: `ولي أمر الطالب ${s.name}، تم تسجيل مخالفة: (${state.Viol.violations[s.id]}) في الصف ${grade}/${section} بتاريخ ${today}. — ${teacher}` }));
+    const rows = viols.map((s, i) => ({ serial: i + 1, phone: s.phone, name: s.name, message: `ولي أمر الطالب ${s.name}، تم تسجيل مخالفة: (${state.Viol.violations[s.id]}) في الصف ${grade}/${section} بتاريخ ${today}. —  المعلم : ${teacher}` }));
     sendData(rows, type);
   }
 }
 
 function sendData(rows, type) {
+  const loadingSpan = document.getElementById('loading' + type);
+  const sendBtn = document.querySelector(`button[onclick="exportData('${type}')"]`);
+
+  if (loadingSpan) {
+    loadingSpan.textContent = '⏳ جاري الإرسال...';
+    loadingSpan.style.display = 'inline';
+  }
+
+  if (sendBtn) sendBtn.disabled = true;
+
   fetch(EXPORT_WEBAPP_URLS[type], {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(rows)
   }).then(() => {
-    alert('✅ تم إرسال البيانات بنجاح');
+    resetForm(type);  // تم تفريغ الحقول تلقائيًا بعد الإرسال
+
+    if (loadingSpan) loadingSpan.textContent = '✅ تم الإرسال بنجاح';
+    setTimeout(() => {
+      if (loadingSpan) {
+        loadingSpan.style.display = 'none';
+        loadingSpan.textContent = '⏳ جاري الإرسال...';
+      }
+    }, 1500);
+
+    if (sendBtn) sendBtn.disabled = false;
     resetForm(type);
-  })
-    .catch(err => { alert('❌ فشل الإرسال'); console.error(err); });
+  }).catch(err => {
+    alert('❌ فشل الإرسال');
+    console.error(err);
+    if (loadingSpan) loadingSpan.style.display = 'none';
+    if (sendBtn) sendBtn.disabled = false;
+  });
 }
 
 function renderMorningLate() {
@@ -322,6 +406,75 @@ function resetForm(type) {
   showSection('mainMenu');
 }
 
+
+function noAbsentees() {
+  const teacher = document.getElementById('teacherNameAbs').value;
+  const grade = document.getElementById('gradeSelectAbs').value;
+  const section = document.getElementById('sectionSelectAbs').value;
+  const loadingSpan = document.getElementById('loadingAbs');
+  const sendBtn = document.querySelector("button[onclick='noAbsentees()']");
+
+  if (!teacher || !grade || !section) {
+    alert("يرجى إدخال اسم المعلم واختيار الصف والشعبة أولاً");
+    return;
+  }
+
+  if (loadingSpan) loadingSpan.style.display = 'inline';
+  if (sendBtn) sendBtn.disabled = true;
+
+  const rows = [{
+    name: "لا يوجد غياب",
+    phone: "",
+    message: `لا يوجد غياب في الصف ${grade} / ${section} - المعلم: ${teacher}`
+  }];
+
+  fetch(EXPORT_WEBAPP_URLS['Abs'], {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(rows)
+  }).then(() => {
+    resetForm(type);  // تم تفريغ الحقول تلقائيًا بعد الإرسال
+
+    if (loadingSpan) loadingSpan.textContent = '✅ تم الإرسال بنجاح';
+    setTimeout(() => {
+      if (loadingSpan) {
+        loadingSpan.style.display = 'none';
+        loadingSpan.textContent = '⏳ جاري الإرسال...';
+      }
+    }, 1500);
+    if (sendBtn) sendBtn.disabled = false;
+    resetForm('Abs');
+  }).catch(err => {
+    alert('❌ فشل الإرسال');
+    console.error(err);
+    if (loadingSpan) loadingSpan.style.display = 'none';
+    if (sendBtn) sendBtn.disabled = false;
+  });
+}
+
+
+function toggleDesignerInfo() {
+  const info = document.getElementById('designerInfo');
+  info.style.display = info.style.display === 'none' ? 'block' : 'none';
+}
+
 </script>
+<!-- معلومات المصمم -->
+<footer style="text-align: center; padding: 15px; background: #d9f0ff; color: #003f66; font-size: 14px;">
+  👨‍💻 <strong>المصمم: سيف جمال المعولي</strong>
+</footer>
+
+<!-- زر المساعدة ومحتواه -->
+<div style="text-align: center; background: #e0f7ff; padding: 20px;">
+  <button onclick="toggleDesignerInfo()" style="background: #0077b6; color: white; padding: 10px 20px; border-radius: 10px; border: none; font-size: 16px; cursor: pointer;">
+    💡 مساعدة / معلومات المصمم
+  </button>
+  <div id="designerInfo" style="margin-top: 15px; display: none; line-height: 1.8; color: #004b80;">
+    👨‍💻 <strong>المصمم:</strong> سيف جمال المعولي<br>
+    📞 <strong>الهاتف:</strong> <a href="tel:99036615">99036615</a><br>
+    ✉️ <strong>الإيميل:</strong> <a href="mailto:saif2005@moe.om">saif2005@moe.om</a>
+  </div>
+</div>
 </body>
 </html>
