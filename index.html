@@ -1,63 +1,10 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="icon" href="logo_no_bg.png" type="image/png">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>منصة متابعة الطلبة بمدرسة معولة بن شمس</title>
 <style>
-@media (max-width: 600px) {
-  button {
-    width: 90%;
-    font-size: 18px;
-    margin: 10px auto;
-    display: block;
-  }
-
-  h2 {
-    font-size: 20px;
-  }
-
-  img {
-    width: 80px;
-  }
-}
-/* خلفية ناعمة */
-body {
-  background: linear-gradient(to bottom, #e6f0ff, #ffffff);
-}
-
-/* حركة Fade in */
-.fade-in {
-  animation: fadeIn 1s ease;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* تحسين الأزرار */
-button {
-  font-size: 18px;
-  padding: 12px 20px;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-}
-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* استجابة الهاتف */
-@media (max-width: 600px) {
-  button {
-    width: 90%;
-    margin: 10px auto;
-    display: block;
-  }
-}
   body { font-family: 'Tajawal', sans-serif; background: #e6f4ff; color: #111; padding: 0; margin: 0; direction: rtl; }
   h2 { margin: 0; padding: 0; }
   .menu-container { text-align: center; padding: 60px 20px; }
@@ -86,14 +33,10 @@ button:hover {
 <body>
   <!-- الصفحة الرئيسية -->
   <div id="mainMenu" class="menu-container">
-    <div style="text-align: center; margin-top: 20px;" class="fade-in">
-  <img src="logo_no_bg.png" alt="شعار المدرسة" style="width: 120px; height: auto; margin-bottom: 10px;">
-  <h2 style="font-size: 24px; font-weight: bold;">منصة متابعة الطلبة بمدرسة معولة بن شمس</h2>
-<p style="font-size: 16px; margin-top: 5px; color: #333;">للعام الدراسي 2025/2026</p>
-</div>
-    <button class="menu-btn absence-btn" onclick="showSection('absenceSection')">🟩 📋 تسجيل الغياب</button>
-    <button class="menu-btn violation-btn" onclick="showSection('violationSection')">🟥 ⚠️ تسجيل المخالفات</button>
-    <button class="menu-btn morning-btn" onclick="showSection('morningLateSection')">🔵 ⏰ التأخر الصباحي</button>
+    <h2>منصة متابعة الطلبة بمدرسة معولة بن شمس</h2>
+    <button class="menu-btn absence-btn" onclick="showSection('absenceSection')">🟩 تسجيل الغياب</button>
+    <button class="menu-btn violation-btn" onclick="showSection('violationSection')">🟥 تسجيل المخالفات</button>
+    <button class="menu-btn morning-btn" onclick="showSection('morningLateSection')">🔵 التأخر الصباحي</button>
 
   </div>
 
@@ -123,9 +66,7 @@ button:hover {
           <select id="sectionSelectAbs"><option value="">اختر</option></select>
         </label>
         <button onclick="loadCSVData('Abs')">عرض الطلاب</button>
-        <button onclick="noAbsentees()">✅ لا يوجد غياب</button>
-<button onclick="exportData('Abs')">📤 إرسال</button>
-<span id="loadingAbs" style="display:none; margin-right: 10px; color:#0077b6;">⏳ جاري الإرسال...</span>
+        <button onclick="exportData('Abs')">📤 إرسال</button>
       </div>
       <table>
         <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>الحالة</th></tr></thead>
@@ -135,11 +76,11 @@ button:hover {
   </div>
 
   
-  <!-- صفحة ⏰ التأخر الصباحي -->
+  <!-- صفحة التأخر الصباحي -->
   <div id="morningLateSection" class="hidden">
     <div class="top-bar">
       <button class="back-btn" onclick="showSection('mainMenu')">🏠 رجوع</button>
-      <h2><span class="icon">🎓</span>تسجيل ⏰ التأخر الصباحي للطلبة</h2>
+      <h2><span class="icon">🎓</span>تسجيل التأخر الصباحي للطلبة</h2>
     </div>
     <div class="section-content">
       <div class="controls">
@@ -161,7 +102,7 @@ button:hover {
           <select id="sectionSelectMorning"><option value="">اختر</option></select>
         </label>
         <button onclick="loadCSVData('Morning')">عرض الطلاب</button>
-        <button onclick="exportData('Morning')">📤 إرسال</button><span id="loadingMorning" style="display:none; margin-right: 10px; color:#004b80;">⏳ جاري الإرسال...</span>
+        <button onclick="exportData('Morning')">📤 إرسال</button>
       </div>
       <table>
         <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>الحالة</th></tr></thead>
@@ -197,7 +138,7 @@ button:hover {
           <select id="sectionSelectViol"><option value="">اختر</option></select>
         </label>
         <button onclick="loadCSVData('Viol')">عرض الطلاب</button>
-        <button onclick="exportData('Viol')">📤 إرسال</button><span id="loadingViol" style="display:none; margin-right: 10px; color:#dc2626;">⏳ جاري الإرسال...</span>
+        <button onclick="exportData('Viol')">📤 إرسال</button>
       </div>
       <table>
         <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>المخالفة</th></tr></thead>
@@ -332,38 +273,16 @@ function exportData(type) {
 }
 
 function sendData(rows, type) {
-  const loadingSpan = document.getElementById('loading' + type);
-  const sendBtn = document.querySelector(`button[onclick="exportData('${type}')"]`);
-
-  if (loadingSpan) {
-    loadingSpan.textContent = '⏳ جاري الإرسال...';
-    loadingSpan.style.display = 'inline';
-  }
-
-  if (sendBtn) sendBtn.disabled = true;
-
   fetch(EXPORT_WEBAPP_URLS[type], {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(rows)
   }).then(() => {
-    if (loadingSpan) loadingSpan.textContent = '✅ تم الإرسال بنجاح';
-    setTimeout(() => {
-      if (loadingSpan) {
-        loadingSpan.style.display = 'none';
-        loadingSpan.textContent = '⏳ جاري الإرسال...';
-      }
-    }, 1500);
-
-    if (sendBtn) sendBtn.disabled = false;
+    alert('✅ تم إرسال البيانات بنجاح');
     resetForm(type);
-  }).catch(err => {
-    alert('❌ فشل الإرسال');
-    console.error(err);
-    if (loadingSpan) loadingSpan.style.display = 'none';
-    if (sendBtn) sendBtn.disabled = false;
-  });
+  })
+    .catch(err => { alert('❌ فشل الإرسال'); console.error(err); });
 }
 
 function renderMorningLate() {
@@ -401,51 +320,6 @@ function resetForm(type) {
 
   // العودة للقائمة الرئيسية
   showSection('mainMenu');
-}
-
-
-function noAbsentees() {
-  const teacher = document.getElementById('teacherNameAbs').value;
-  const grade = document.getElementById('gradeSelectAbs').value;
-  const section = document.getElementById('sectionSelectAbs').value;
-  const loadingSpan = document.getElementById('loadingAbs');
-  const sendBtn = document.querySelector("button[onclick='noAbsentees()']");
-
-  if (!teacher || !grade || !section) {
-    alert("يرجى إدخال اسم المعلم واختيار الصف والشعبة أولاً");
-    return;
-  }
-
-  if (loadingSpan) loadingSpan.style.display = 'inline';
-  if (sendBtn) sendBtn.disabled = true;
-
-  const rows = [{
-    name: "لا يوجد غياب",
-    phone: "",
-    message: `لا يوجد غياب في الصف ${grade} / ${section} - المعلم: ${teacher}`
-  }];
-
-  fetch(EXPORT_WEBAPP_URLS['Abs'], {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(rows)
-  }).then(() => {
-    if (loadingSpan) loadingSpan.textContent = '✅ تم الإرسال بنجاح';
-    setTimeout(() => {
-      if (loadingSpan) {
-        loadingSpan.style.display = 'none';
-        loadingSpan.textContent = '⏳ جاري الإرسال...';
-      }
-    }, 1500);
-    if (sendBtn) sendBtn.disabled = false;
-    resetForm('Abs');
-  }).catch(err => {
-    alert('❌ فشل الإرسال');
-    console.error(err);
-    if (loadingSpan) loadingSpan.style.display = 'none';
-    if (sendBtn) sendBtn.disabled = false;
-  });
 }
 
 </script>
