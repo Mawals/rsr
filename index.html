@@ -349,6 +349,11 @@ function sendData(rows, type) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(rows)
   }).then(() => {
+.then(() => {
+  alert("تم إرسال البيانات بنجاح");
+  resetForm(type);  // 🧹 يمسح جميع الحقول ويعيد المستخدم للشاشة الرئيسية
+})
+
     resetForm(type);  // تم تفريغ الحقول تلقائيًا بعد الإرسال
 
     if (loadingSpan) loadingSpan.textContent = '✅ تم الإرسال بنجاح';
