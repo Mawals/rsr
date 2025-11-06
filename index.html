@@ -310,6 +310,7 @@ function exportData(type) {
     if (!absents.length) return alert('لا يوجد غياب لتصديره.');
     const rows = absents.map((s, i) => ({ serial: i + 1, phone: s.phone, name: s.name, message: `ولي أمر الطالب ${s.name}، نعلمكم بغياب ابنكم عن الصف ${grade}/${section} بتاريخ ${today}. —  المعلم : ${teacher}` }));
     sendData(rows, type);
+  resetForm(type);
   } 
   else if (type === 'Morning') {
     const lateStudents = state.Morning.students.filter(s => state.Morning.status[s.id] === false);
@@ -321,6 +322,7 @@ function exportData(type) {
       message: `ولي أمر الطالب ${s.name}، نعلمكم بتأخر ابنكم عن الحضور للمدرسة صباحًا بتاريخ ${today}. —  المعلم : ${teacher}`
     }));
     sendData(rows, type);
+  resetForm(type);
   }
 
   else {
@@ -328,6 +330,7 @@ function exportData(type) {
     if (!viols.length) return alert('لم يتم اختيار أي مخالفات.');
     const rows = viols.map((s, i) => ({ serial: i + 1, phone: s.phone, name: s.name, message: `ولي أمر الطالب ${s.name}، تم تسجيل مخالفة: (${state.Viol.violations[s.id]}) في الصف ${grade}/${section} بتاريخ ${today}. —  المعلم : ${teacher}` }));
     sendData(rows, type);
+  resetForm(type);
   }
 }
 
