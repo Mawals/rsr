@@ -349,13 +349,6 @@ function sendData(rows, type) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(rows)
   }).then(() => {
-.then(() => {
-  alert("تم إرسال البيانات بنجاح");
-  resetForm(type);  // 🧹 يمسح جميع الحقول ويعيد المستخدم للشاشة الرئيسية
-})
-
-    resetForm(type);  // تم تفريغ الحقول تلقائيًا بعد الإرسال
-
     if (loadingSpan) loadingSpan.textContent = '✅ تم الإرسال بنجاح';
     setTimeout(() => {
       if (loadingSpan) {
@@ -439,8 +432,6 @@ function noAbsentees() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(rows)
   }).then(() => {
-    resetForm(type);  // تم تفريغ الحقول تلقائيًا بعد الإرسال
-
     if (loadingSpan) loadingSpan.textContent = '✅ تم الإرسال بنجاح';
     setTimeout(() => {
       if (loadingSpan) {
@@ -462,6 +453,30 @@ function noAbsentees() {
 function toggleDesignerInfo() {
   const info = document.getElementById('designerInfo');
   info.style.display = info.style.display === 'none' ? 'block' : 'none';
+}
+function resetForm(type) {
+  // إخفاء القسم الحالي
+  document.getElementById(type).style.display = "none";
+
+  // إظهار القائمة الرئيسية
+  document.querySelector(".container").style.display = "block";
+
+  // تفريغ جميع الحقول في القسم الحالي
+  const section = document.getElementById(type);
+  const inputs = section.querySelectorAll("input, select, textarea");
+  inputs.forEach(input => {
+    if (input.tagName === "SELECT") {
+      input.selectedIndex = 0;
+    } else {
+      input.value = "";
+    }
+  });
+
+  // تفريغ عرض رقم ولي الأمر (إن وُجد)
+  const guardian = section.querySelector(".pill");
+  if (guardian) {
+    guardian.textContent = "—";
+  }
 }
 
 </script>
