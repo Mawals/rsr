@@ -215,10 +215,31 @@ const EXPORT_WEBAPP_URLS = {
 };
 const state = { Abs: {students: [], attendance: {}}, Viol: {students: [], violations: {}}, Morning: {students: [], status: {}} };
 
+
 function showSection(id) {
-  document.querySelectorAll('#mainMenu, #absenceSection, #violationSection, #morningLateSection').forEach(div => div.classList.add('hidden'));
+  document.querySelectorAll('#mainMenu, #absenceSection, #violationSection, #morningLateSection')
+    .forEach(div => div.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
+
+  if (id === 'mainMenu') {
+      state.Abs.attendance = {};
+      state.Morning.status = {};
+      state.Viol.violations = {};
+
+      document.getElementById('studentsBodyAbs').innerHTML = '<tr><td colspan="4">بانتظار تحميل البيانات...</td></tr>';
+      document.getElementById('studentsBodyMorning').innerHTML = '<tr><td colspan="4">بانتظار تحميل البيانات...</td></tr>';
+      document.getElementById('studentsBodyViol').innerHTML = '<tr><td colspan="4">بانتظار تحميل البيانات...</td></tr>';
+
+      document.getElementById('gradeSelectAbs').value = '';
+      document.getElementById('gradeSelectMorning').value = '';
+      document.getElementById('gradeSelectViol').value = '';
+
+      document.getElementById('sectionSelectAbs').innerHTML = '<option value="">اختر</option>';
+      document.getElementById('sectionSelectMorning').innerHTML = '<option value="">اختر</option>';
+      document.getElementById('sectionSelectViol').innerHTML = '<option value="">اختر</option>';
+  }
 }
+
 
 function updateSections(type) {
   const grade = document.getElementById('gradeSelect' + type).value;
