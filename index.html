@@ -359,35 +359,41 @@ function sendData(rows, type) {
   const sendBtn = document.querySelector(`button[onclick="exportData('${type}')"]`);
 
   if (loadingSpan) {
-    loadingSpan.textContent = '⏳ جاري الإرسال...';
     loadingSpan.style.display = 'inline';
+    loadingSpan.textContent = '⏳ جاري الإرسال...';
   }
 
   if (sendBtn) sendBtn.disabled = true;
 
+  const payload = {
+    type: type,
+    grade: document.getElementById('gradeSelect' + type)?.value || '',
+    section: document.getElementById('sectionSelect' + type)?.value || '',
+    teacher: document.getElementById('teacherName' + type)?.value || '',
+    rows: rows
+  };
+
   fetch(EXPORT_WEBAPP_URLS[type], {
     method: 'POST',
-    mode: 'no-cors',
+    mode: 'cors',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(rows)
-  }).then(() => {
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.text())
+  .then(() => {
     if (loadingSpan) loadingSpan.textContent = '✅ تم الإرسال بنجاح';
-    setTimeout(() => {
-      if (loadingSpan) {
-        loadingSpan.style.display = 'none';
-        loadingSpan.textContent = '⏳ جاري الإرسال...';
-      }
-    }, 1500);
-
-    if (sendBtn) sendBtn.disabled = false;
-    resetForm(type);  // 🧹 تفريغ النموذج تلقائيًا
-    resetForm(type);
-  }).catch(err => {
+  })
+  .catch(err => {
     alert('❌ فشل الإرسال');
     console.error(err);
-    if (loadingSpan) loadingSpan.style.display = 'none';
-    if (sendBtn) sendBtn.disabled = false;
-    resetForm(type);  // 🧹 تفريغ النموذج تلقائيًا
+    if (loadingSpan) loadingSpan.textContent = '❌ فشل الإرسال';
+  })
+  .finally(() => {
+    setTimeout(() => {
+      if (loadingSpan) { loadingSpan.style.display='none'; loadingSpan.textContent='⏳ جاري الإرسال...'; }
+      if (sendBtn) sendBtn.disabled = false;
+      resetForm(type);
+    },1500);
   });
 }
 
