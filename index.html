@@ -210,9 +210,9 @@ button:hover {
 <script>
 const SHEET_URLS = ['https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ3CGPHmBFZ8myoys49bw1MLrC_tfdcKuZ-ZBSMczVqLZbxzSe-LZbyqCDv2YZLQ/pub?gid=626465739&single=true&output=csv'];
 const EXPORT_WEBAPP_URLS = {
-  Abs: "https://script.google.com/macros/s/AKfycbwSzXJR6tePnCjgpE8AUY5_xLyy0wVvRexBRSTyWuK_t9PKoVaSVJUqoW7ZUH1rYsag/exec",
-  Viol: "https://script.google.com/macros/s/AKfycbwSzXJR6tePnCjgpE8AUY5_xLyy0wVvRexBRSTyWuK_t9PKoVaSVJUqoW7ZUH1rYsag/exec",
-  Morning: "https://script.google.com/macros/s/AKfycbwSzXJR6tePnCjgpE8AUY5_xLyy0wVvRexBRSTyWuK_t9PKoVaSVJUqoW7ZUH1rYsag/exec"
+  Abs: "https://script.google.com/macros/s/AKfycbyVxEgWJZrCokVgyg74bmZ4e24fz2ndrIMMXzQ4BVmsKUUQ7JB4c7UUmkxqvv-zswlHIw/exec",
+  Viol: "https://script.google.com/macros/s/AKfycbyVxEgWJZrCokVgyg74bmZ4e24fz2ndrIMMXzQ4BVmsKUUQ7JB4c7UUmkxqvv-zswlHIw/exec",
+  Morning: "https://script.google.com/macros/s/AKfycbyVxEgWJZrCokVgyg74bmZ4e24fz2ndrIMMXzQ4BVmsKUUQ7JB4c7UUmkxqvv-zswlHIw/exec"
 };
 const state = { Abs: {students: [], attendance: {}}, Viol: {students: [], violations: {}}, Morning: {students: [], status: {}} };
 
@@ -359,41 +359,35 @@ function sendData(rows, type) {
   const sendBtn = document.querySelector(`button[onclick="exportData('${type}')"]`);
 
   if (loadingSpan) {
-    loadingSpan.style.display = 'inline';
     loadingSpan.textContent = '⏳ جاري الإرسال...';
+    loadingSpan.style.display = 'inline';
   }
 
   if (sendBtn) sendBtn.disabled = true;
 
-  const payload = {
-    type: type,
-    grade: document.getElementById('gradeSelect' + type)?.value || '',
-    section: document.getElementById('sectionSelect' + type)?.value || '',
-    teacher: document.getElementById('teacherName' + type)?.value || '',
-    rows: rows
-  };
-
   fetch(EXPORT_WEBAPP_URLS[type], {
     method: 'POST',
-    mode: 'cors',
+    mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
-  .then(res => res.text())
-  .then(() => {
+    body: JSON.stringify(rows)
+  }).then(() => {
     if (loadingSpan) loadingSpan.textContent = '✅ تم الإرسال بنجاح';
-  })
-  .catch(err => {
+    setTimeout(() => {
+      if (loadingSpan) {
+        loadingSpan.style.display = 'none';
+        loadingSpan.textContent = '⏳ جاري الإرسال...';
+      }
+    }, 1500);
+
+    if (sendBtn) sendBtn.disabled = false;
+    resetForm(type);  // 🧹 تفريغ النموذج تلقائيًا
+    resetForm(type);
+  }).catch(err => {
     alert('❌ فشل الإرسال');
     console.error(err);
-    if (loadingSpan) loadingSpan.textContent = '❌ فشل الإرسال';
-  })
-  .finally(() => {
-    setTimeout(() => {
-      if (loadingSpan) { loadingSpan.style.display='none'; loadingSpan.textContent='⏳ جاري الإرسال...'; }
-      if (sendBtn) sendBtn.disabled = false;
-      resetForm(type);
-    },1500);
+    if (loadingSpan) loadingSpan.style.display = 'none';
+    if (sendBtn) sendBtn.disabled = false;
+    resetForm(type);  // 🧹 تفريغ النموذج تلقائيًا
   });
 }
 
