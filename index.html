@@ -3,10 +3,10 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="icon" href="شعار-اسية (1).png" type="image/png">
+  <link rel="icon" href="logo_no_bg.png" type="image/png">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>منصة متابعة الطلبة بمدرسة آسية بنت مزاحم</title>
+<title>منصة متابعة الطلبة بمدرسة معولة بن شمس</title>
 <style>
 @media (max-width: 600px) {
   button {
@@ -58,7 +58,7 @@ button:hover {
     display: block;
   }
 }
-  body { font-family: 'Tajawal', sans-serif; background: #e6f4ff; color: #111; padding: 0; margin: 0; direction: rtl; }
+  body { font-family: 'Tajawal', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; background: #e6f4ff; color: #111; padding: 0; margin: 0; direction: rtl; }
   h2 { margin: 0; padding: 0; }
   .menu-container { text-align: center; padding: 60px 20px; }
   .menu-btn { display: inline-block; padding: 20px 40px; margin: 20px; font-size: 20px; border-radius: 10px; cursor: pointer; color: white; border: none; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: transform 0.2s; }
@@ -82,13 +82,14 @@ button:hover {
   .absent { background: #dc2626; color: #fff; }
   .controls { margin-bottom: 20px; }
 </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
   <!-- الصفحة الرئيسية -->
   <div id="mainMenu" class="menu-container">
     <div style="text-align: center; margin-top: 20px;" class="fade-in">
-  <img src="شعار-اسية (1).png" alt="شعار المدرسة" style="width: 120px; height: auto; margin-bottom: 10px;">
-  <h2 style="font-size: 24px; font-weight: bold;">منصة متابعة الطلبة بمدرسة آسية بنت مزاحم</h2>
+  <img src="logo_no_bg.png" alt="شعار المدرسة" style="width: 120px; height: auto; margin-bottom: 10px;">
+  <h2 style="font-size: 24px; font-weight: bold;">منصة متابعة الطلبة بمدرسة معولة بن شمس</h2>
 <p style="font-size: 16px; margin-top: 5px; color: #333;">للعام الدراسي 2025/2026</p>
 </div>
     <button class="menu-btn absence-btn" onclick="showSection('absenceSection')">🟩 📋 تسجيل الغياب</button>
@@ -101,7 +102,7 @@ button:hover {
   <div id="absenceSection" class="hidden">
     <div class="top-bar">
       <button class="back-btn" onclick="showSection('mainMenu')">🏠 رجوع</button>
-      <h2><span class="icon">🎓</span>تسجيل غياب الطلبة بمدرسة آسية بنت مزاحم</h2>
+      <h2><span class="icon">🎓</span>تسجيل غياب الطلبة بمدرسة معولة بن شمس</h2>
     </div>
     <div class="section-content">
       <div class="controls">
@@ -139,7 +140,7 @@ button:hover {
   <div id="morningLateSection" class="hidden">
     <div class="top-bar">
       <button class="back-btn" onclick="showSection('mainMenu')">🏠 رجوع</button>
-      <h2><span class="icon">🎓</span>تسجيل  التأخر الصباحي للطلبة بمدرسة آسية بنت مزاحم⏰</h2>
+      <h2><span class="icon">🎓</span>⏰ تسجيل التأخر الصباحي الطلبة بمدرسة معولة بن شمس</h2>
     </div>
     <div class="section-content">
       <div class="controls">
@@ -175,7 +176,7 @@ button:hover {
   <div id="violationSection" class="hidden">
     <div class="top-bar">
       <button class="back-btn" onclick="showSection('mainMenu')">🏠 رجوع</button>
-      <h2><span class="icon">🎓</span>تسجيل مخالفات الطلبة بمدرسة آسية بنت مزاحم</h2>
+      <h2><span class="icon">🎓</span>تسجيل مخالفات الطلبة بمدرسة معولة بن شمس</h2>
     </div>
     <div class="section-content">
       <div class="controls">
@@ -207,11 +208,11 @@ button:hover {
   </div>
 
 <script>
-const SHEET_URLS = ['https://docs.google.com/spreadsheets/d/e/2PACX-1vSjZnLB2tklle_gXAo8xK9hyut08wgJUwMgXFkG3GO0jI9zqQROJAUuhq1MONrijQ/pub?gid=441760191&single=true&output=csv'];
+const SHEET_URLS = ['https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ3CGPHmBFZ8myoys49bw1MLrC_tfdcKuZ-ZBSMczVqLZbxzSe-LZbyqCDv2YZLQ/pub?gid=626465739&single=true&output=csv'];
 const EXPORT_WEBAPP_URLS = {
-  Abs: "https://script.google.com/macros/s/AKfycbxXEuWSWtYt6bwuofWjTPqREQ0iRDq75ngTA0wFXQSCpGSj0dZR4A7GsxYWhleVfiF9Ag/exec",
-  Viol: "https://script.google.com/macros/s/AKfycbxXEuWSWtYt6bwuofWjTPqREQ0iRDq75ngTA0wFXQSCpGSj0dZR4A7GsxYWhleVfiF9Ag/exec",
-  Morning: "https://script.google.com/macros/s/AKfycbxXEuWSWtYt6bwuofWjTPqREQ0iRDq75ngTA0wFXQSCpGSj0dZR4A7GsxYWhleVfiF9Ag/exec"
+  Abs: "https://script.google.com/macros/s/AKfycbxbENK32LyeLgF0RXBepGk7ejgogld1sVWr5iiOrnSkdyC6UniilRZGqunW0bG04_qh/exec",
+  Viol: "https://script.google.com/macros/s/AKfycbxbENK32LyeLgF0RXBepGk7ejgogld1sVWr5iiOrnSkdyC6UniilRZGqunW0bG04_qh/exec",
+  Morning: "https://script.google.com/macros/s/AKfycbxbENK32LyeLgF0RXBepGk7ejgogld1sVWr5iiOrnSkdyC6UniilRZGqunW0bG04_qh/exec"
 };
 const state = { Abs: {students: [], attendance: {}}, Viol: {students: [], violations: {}}, Morning: {students: [], status: {}} };
 
