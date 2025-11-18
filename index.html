@@ -499,3 +499,73 @@ function toggleDesignerInfo() {
 </div>
 </body>
 </html>
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="icon" href="logo_no_bg.png" type="image/png">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>منصة متابعة الطلبة بمدرسة معولة بن شمس</title>
+  <style>
+    /* نفس التنسيق كما في النسخة الأصلية */
+  </style>
+</head>
+<body>
+  <!-- الصفحة الرئيسية -->
+  <div id="mainMenu" class="menu-container">
+    <!-- المحتوى الحالي كما هو -->
+  </div>
+
+  <!-- صفحات التسجيل المختلفة كما هي -->
+  
+<script>
+  // إضافة رابط Web App هنا في الجزء الخاص بالدالة
+  const EXPORT_WEBAPP_URLS = {
+    Abs: "https://script.google.com/macros/s/AKfycby29Jv6YyJ-ZKgmkWRl558xqS9jNvd7YsUh_w5gbJxcko6TdR-dhPhISzIu0CamcpHY7Q/exec",
+    Viol: "https://script.google.com/macros/s/AKfycby29Jv6YyJ-ZKgmkWRl558xqS9jNvd7YsUh_w5gbJxcko6TdR-dhPhISzIu0CamcpHY7Q/exec",
+    Morning: "https://script.google.com/macros/s/AKfycby29Jv6YyJ-ZKgmkWRl558xqS9jNvd7YsUh_w5gbJxcko6TdR-dhPhISzIu0CamcpHY7Q/exec"
+  };
+
+  // باقي الكود الخاص بالدوال كما هو، دون تغيير
+  function sendData(rows, type) {
+    const loadingSpan = document.getElementById('loading' + type);
+    const sendBtn = document.querySelector(`button[onclick="exportData('${type}')"]`);
+
+    if (loadingSpan) {
+      loadingSpan.textContent = '⏳ جاري الإرسال...';
+      loadingSpan.style.display = 'inline';
+    }
+
+    if (sendBtn) sendBtn.disabled = true;
+
+    fetch(EXPORT_WEBAPP_URLS[type], {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(rows)
+    }).then(() => {
+      if (loadingSpan) loadingSpan.textContent = '✅ تم الإرسال بنجاح';
+      setTimeout(() => {
+        if (loadingSpan) {
+          loadingSpan.style.display = 'none';
+          loadingSpan.textContent = '⏳ جاري الإرسال...';
+        }
+      }, 1500);
+
+      if (sendBtn) sendBtn.disabled = false;
+      resetForm(type);  // 🧹 تفريغ النموذج تلقائيًا
+    }).catch(err => {
+      alert('❌ فشل الإرسال');
+      console.error(err);
+      if (loadingSpan) loadingSpan.style.display = 'none';
+      if (sendBtn) sendBtn.disabled = false;
+      resetForm(type);  // 🧹 تفريغ النموذج تلقائيًا
+    });
+  }
+
+  // باقي الكود الخاص بالإرسال والتحميل كما هو
+</script>
+</body>
+</html>
