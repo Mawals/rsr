@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لوحة المشرف - تقارير الغياب</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1, h2, h3 {
+      margin: 10px 0;
+    }
+    .panel {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .hidden {
+      display: none;
+    }
+    .btn {
+      padding: 10px 18px;
+      margin: 5px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-primary {
+      background: #0066cc;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #004c99;
+    }
+    .btn-danger {
+      background: #c0392b;
+      color: #fff;
+    }
+    .btn-danger:hover {
+      background: #922b21;
+    }
+    .btn-gray {
+      background: #777;
+      color: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 6px 4px;
+    }
+    th {
+      background: #f0f0f0;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin: 0 3px;
+    }
+    .badge-abs { background:#2ecc71; color:#fff; }
+    .badge-morning { background:#f1c40f; color:#000; }
+    .badge-viol { background:#e67e22; color:#fff; }
+
+    input[type="password"] {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel" id="loginPanel">
+    <h1>🔐 دخول المشرف</h1>
+    <p>https://script.google.com/macros/s/AKfycbzXuOFz-SJCiGbaPmlepX47CYg1ZOJodgMPWRpSq8QLHXb7ud9WSEwBpCm72eAlWvbJ/exec</p>
+    <input type="password" id="supPass" placeholder="••••" />
+    <button class="btn btn-primary" onclick="checkSupervisorPass()">دخول</button>
+  </div>
+
+  <div class="panel hidden" id="mainPanel">
+    <h1>📘 لوحة المشرف</h1>
+    <h3>
+      <span class="badge badge-abs">الغياب</span>
+      <span class="badge badge-morning">التأخر</span>
+      <span class="badge badge-viol">السلوكيات</span>
+    </h3>
+
+    <div style="margin-top:10px;">
+      <button class="btn btn-primary" onclick="loadReport('Abs')">📗 تحميل تقرير الغياب</button>
+      <button class="btn btn-primary" onclick="loadReport('Morning')">📙 تحميل تقرير التأخر</button>
+      <button class="btn btn-primary" onclick="loadReport('Viol')">📕 تحميل تقرير السلوكيات</button>
+    </div>
+
+    <div id="currentTypeLabel" style="margin-top:10px; font-weight:bold;"></div>
+    <div id="countLabel" style="margin-top:5px;"></div>
+
+    <div id="tableContainer"></div>
+
+    <div style="margin-top:15px;">
+      <button class="btn btn-danger" onclick="sendAllWhatsApp()" id="sendAllBtn" disabled>
+        📤 إرسال جماعي لجميع أولياء الأمور
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // 🔗 رابط الويب آب
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwVYDoKDX0QmRmdkfk9gyz3KFrmnqxE7NMOEEEqr7FRsU2SJUujZeZYxUiVBD8xxNl_/exec";
+
+    // أرقام المشرفين (واتساب) - عدلها كما تشاء
+    const supervisorNumbers = [
+      "9689XXXXXXX",
+      "9689YYYYYYY"
+    ];
+
+    const ULTRA_INSTANCE = "instance150506";
+    const ULTRA_TOKEN = "lwcl28v4w3jgfxzw";
+
+    let currentRows = [];
+    let currentType = null;
+
+    // ✅ تحقق من كلمة السر (1982)
+    function checkSupervisorPass() {
+      const pass = document.getElementById('supPass').value.trim();
+      if (pass === "1982") {
+        document.getElementById('loginPanel').classList.add('hidden');
+        document.getElementById('mainPanel').classList.remove('hidden');
+      } else {
+        alert("❌ الرقم السري غير صحيح");
+      }
+    }
+
+    // ✅ تحميل التقرير من Web App حسب النوع
+    function loadReport(type) {
+      currentType = type;
+      document.getElementById('sendAllBtn').disabled = true;
+      document.getElementById('tableContainer').innerHTML = "⏳ جاري تحميل البيانات...";
+      document.getElementById('countLabel').textContent = "";
+
+      let label =
+        type === "Abs" ? "تقرير الغياب" :
+        type === "Morning" ? "تقرير التأخر" :
+        "تقرير السلوكيات";
+
+      document.getElementById('currentTypeLabel').textContent = label;
+
+      fetch(WEBAPP_URL + "?type=" + encodeURIComponent(type))
+        .then(res => res.json())
+        .then(data => {
+          if (!Array.isArray(data)) data = [];
+          currentRows = data;
+
+          if (data.length === 0) {
+            document.getElementById('tableContainer').innerHTML = "لا توجد بيانات لهذا النوع.";
+            document.getElementById('countLabel').textContent = "";
+            document.getElementById('sendAllBtn').disabled = true;
+            return;
+          }
+
+          document.getElementById('countLabel').textContent =
+            "عدد السجلات: " + data.length;
+
+          renderTable(data);
+          document.getElementById('sendAllBtn').disabled = false;
+        })
+        .catch(err => {
+          console.error(err);
+          alert("❌ فشل تحميل البيانات من النظام");
+          document.getElementById('tableContainer').innerHTML = "";
+          document.getElementById('sendAllBtn').disabled = true;
+        });
+    }
+
+    // ✅ عرض جدول البيانات
+    function renderTable(rows) {
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>التاريخ/الوقت</th>
+              <th>الاسم</th>
+              <th>الهاتف</th>
+              <th>نص الرسالة</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      rows.forEach((r, idx) => {
+        html += `
+          <tr>
+            <td>${idx + 1}</td>
+            <td>${r.time || ""}</td>
+            <td>${r.name || ""}</td>
+            <td>${r.phone || ""}</td>
+            <td>${r.message || ""}</td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      document.getElementById('tableContainer').innerHTML = html;
+    }
+
+    // ✅ تطبيع رقم الهاتف (إضافة 968 عند الحاجة)
+    function normalizePhone(phone) {
+      if (!phone) return null;
+      phone = String(phone).trim();
+      if (!phone) return null;
+
+      if (phone.startsWith("9")) {
+        phone = "968" + phone;
+      } else if (!phone.startsWith("968")) {
+        // رقم غير معروف الصيغة
+        return null;
+      }
+      return phone;
+    }
+
+    // ✅ إرسال رسالة واتساب لجيمع أولياء الأمور
+    async function sendAllWhatsApp() {
+      if (!currentRows || currentRows.length === 0) {
+        alert("لا توجد بيانات لإرسالها");
+        return;
+      }
+
+      if (!confirm("هل أنت متأكد من إرسال جميع الرسائل لأولياء الأمور؟")) {
+        return;
+      }
+
+      document.getElementById('sendAllBtn').disabled = true;
+      document.getElementById('sendAllBtn').textContent = "📤 جاري الإرسال...";
+
+      let sentCount = 0;
+      let skipCount = 0;
+
+      for (let row of currentRows) {
+        const phone = normalizePhone(row.phone);
+        const msg = row.message || "";
+
+        if (!phone || !msg) {
+          skipCount++;
+          continue;
+        }
+
+        const finalMessage =
+          msg + "\n\nمع تحيات إدارة المدرسة";
+
+        try {
+          await sendWhatsAppToParent(phone, finalMessage);
+          sentCount++;
+        } catch (err) {
+          console.error("send error", err);
+          skipCount++;
+        }
+      }
+
+      document.getElementById('sendAllBtn').disabled = false;
+      document.getElementById('sendAllBtn').textContent = "📤 إرسال جماعي لجميع أولياء الأمور";
+
+      alert(`✔ تم إرسال ${sentCount} رسالة، وتخطي ${skipCount} بسبب نقص البيانات أو خطأ في الإرسال.`);
+    }
+
+    // ✅ استدعاء UltraMsg لولي أمر واحد
+    async function sendWhatsAppToParent(phone, message) {
+      const url = `https://api.ultramsg.com/${ULTRA_INSTANCE}/messages/chat`;
+
+      const body = new URLSearchParams({
+        token: ULTRA_TOKEN,
+        to: phone,
+        body: message
+      });
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: body.toString()
+      });
+
+      const txt = await res.text();
+      console.log("UltraMsg response:", txt);
+      return txt;
+    }
+
+  </script>
+</body>
+</html>
