@@ -8,80 +8,80 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>منصة متابعة الطلبة بمدرسة معولة بن شمس</title>
   <style>
-  @media (max-width: 600px) {
+    @media (max-width: 600px) {
+      button {
+        width: 90%;
+        font-size: 18px;
+        margin: 10px auto;
+        display: block;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+
+      img {
+        width: 80px;
+      }
+    }
+    /* خلفية ناعمة */
+    body {
+      background: linear-gradient(to bottom, #e6f0ff, #ffffff);
+    }
+
+    /* حركة Fade in */
+    .fade-in {
+      animation: fadeIn 1s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* تحسين الأزرار */
     button {
-      width: 90%;
       font-size: 18px;
-      margin: 10px auto;
-      display: block;
+      padding: 12px 20px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
 
-    h2 {
-      font-size: 20px;
+    /* استجابة الهاتف */
+    @media (max-width: 600px) {
+      button {
+        width: 90%;
+        margin: 10px auto;
+        display: block;
+      }
     }
 
-    img {
-      width: 80px;
-    }
-  }
-  /* خلفية ناعمة */
-  body {
-    background: linear-gradient(to bottom, #e6f0ff, #ffffff);
-  }
-
-  /* حركة Fade in */
-  .fade-in {
-    animation: fadeIn 1s ease;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* تحسين الأزرار */
-  button {
-    font-size: 18px;
-    padding: 12px 20px;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-  }
-  button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  }
-
-  /* استجابة الهاتف */
-  @media (max-width: 600px) {
-    button {
-      width: 90%;
-      margin: 10px auto;
-      display: block;
-    }
-  }
-
-  body { font-family: 'Tajawal', sans-serif; background: #e6f4ff; color: #111; padding: 0; margin: 0; direction: rtl; }
-  h2 { margin: 0; padding: 0; }
-  .menu-container { text-align: center; padding: 60px 20px; }
-  .menu-btn { display: inline-block; padding: 20px 40px; margin: 20px; font-size: 20px; border-radius: 10px; cursor: pointer; color: white; border: none; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: transform 0.2s; }
-  .menu-btn:hover { transform: scale(1.05); }
-  .absence-btn { background-color: #16a34a; }
-  .violation-btn { background-color: #dc2626; }
-  .morning-btn { background-color: #6a1b9a; }
-  .hidden { display: none; }
-  .top-bar { background-color: #b3e0ff; color: #004b80; display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-  .top-bar h2 { display: flex; align-items: center; font-size: 22px; }
-  .top-bar h2 span.icon { margin-right: 8px; font-size: 24px; }
-  .back-btn { background-color: #5b9bd5; color: white; border: none; border-radius: 8px; padding: 8px 16px; cursor: pointer; font-size: 14px; }
-  .back-btn:hover { background-color: #468cc4; }
-  .section-content { padding: 20px; text-align: center; }
-  table { width: 100%; border-collapse: collapse; background: #fff; margin-top: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); overflow: hidden; }
-  th, td { padding: 10px; border: 1px solid #ccc; text-align: right; }
-  th { background: #d9f0ff; color: #003f66; }
-  button, select, input { padding: 6px 12px; margin-left: 10px; border: 1px solid #ccc; border-radius: 6px; }
-  button { cursor: pointer; }
-  .present { background: #16a34a; color: #fff; }
-  .absent { background: #dc2626; color: #fff; }
-  .controls { margin-bottom: 20px; }
+    body { font-family: 'Tajawal', sans-serif; background: #e6f4ff; color: #111; padding: 0; margin: 0; direction: rtl; }
+    h2 { margin: 0; padding: 0; }
+    .menu-container { text-align: center; padding: 60px 20px; }
+    .menu-btn { display: inline-block; padding: 20px 40px; margin: 20px; font-size: 20px; border-radius: 10px; cursor: pointer; color: white; border: none; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: transform 0.2s; }
+    .menu-btn:hover { transform: scale(1.05); }
+    .absence-btn { background-color: #16a34a; }
+    .violation-btn { background-color: #dc2626; }
+    .morning-btn { background-color: #6a1b9a; }
+    .hidden { display: none; }
+    .top-bar { background-color: #b3e0ff; color: #004b80; display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .top-bar h2 { display: flex; align-items: center; font-size: 22px; }
+    .top-bar h2 span.icon { margin-right: 8px; font-size: 24px; }
+    .back-btn { background-color: #5b9bd5; color: white; border: none; border-radius: 8px; padding: 8px 16px; cursor: pointer; font-size: 14px; }
+    .back-btn:hover { background-color: #468cc4; }
+    .section-content { padding: 20px; text-align: center; }
+    table { width: 100%; border-collapse: collapse; background: #fff; margin-top: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); overflow: hidden; }
+    th, td { padding: 10px; border: 1px solid #ccc; text-align: right; }
+    th { background: #d9f0ff; color: #003f66; }
+    button, select, input { padding: 6px 12px; margin-left: 10px; border: 1px solid #ccc; border-radius: 6px; }
+    button { cursor: pointer; }
+    .present { background: #16a34a; color: #fff; }
+    .absent { background: #dc2626; color: #fff; }
+    .controls { margin-bottom: 20px; }
   </style>
 </head>
 <body>
@@ -93,7 +93,7 @@
       <p style="font-size: 16px; margin-top: 5px; color: #333;">للعام الدراسي 2025/2026</p>
     </div>
     <button class="menu-btn absence-btn" onclick="showSection('absenceSection')">🟩 📋 تسجيل الغياب</button>
-    <button class="menu-btn violation-btn" onclick="showSection('violationSection')">🟥 ⚠️ تسجيل المخالفات</button>
+    <button class="menu-btn violation-btn" onclick="showSection('violationSection')">🟥⚠️ تسجيل المخالفات</button>
     <button class="menu-btn morning-btn" onclick="showSection('morningLateSection')">🔵 ⏰ التأخر الصباحي</button>
   </div>
 
@@ -207,7 +207,14 @@
   </div>
 
 <script>
-// هنا يتم تعريف الرابط الخاص بـ Web App مرة واحدة فقط
+// دالة لإظهار الأقسام المخفية
+function showSection(id) {
+  document.querySelectorAll('#mainMenu, #absenceSection, #violationSection, #morningLateSection')
+    .forEach(div => div.classList.add('hidden'));  // إخفاء جميع الأقسام
+  document.getElementById(id).classList.remove('hidden');  // إظهار القسم الذي تم تحديده
+}
+
+// رابط Web App
 const EXPORT_WEBAPP_URLS = {
   Abs: "https://script.google.com/macros/s/AKfycby29Jv6YyJ-ZKgmkWRl558xqS9jNvd7YsUh_w5gbJxcko6TdR-dhPhISzIu0CamcpHY7Q/exec",
   Viol: "https://script.google.com/macros/s/AKfycby29Jv6YyJ-ZKgmkWRl558xqS9jNvd7YsUh_w5gbJxcko6TdR-dhPhISzIu0CamcpHY7Q/exec",
@@ -216,5 +223,6 @@ const EXPORT_WEBAPP_URLS = {
 
 // باقي الكود كما هو...
 </script>
+
 </body>
 </html>
