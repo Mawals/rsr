@@ -352,6 +352,40 @@ function exportData(type) {
     sendData(rows, type);
   }
 }
+function exportData(type) {
+  // الحصول على البيانات من الحقول
+  const teacher = document.getElementById('teacherName' + (type === 'Abs' ? 'Abs' : 'Viol')).value.trim() || 'المعلم';
+  const grade = document.getElementById('gradeSelect' + type).value;
+  const section = document.getElementById('sectionSelect' + type).value;
+  const today = new Date().toLocaleDateString('ar-EG');
+
+  // عرض البيانات في Console للتأكد من إرسالها بشكل صحيح
+  console.log("Exporting data to Web App: ", {
+    teacher: teacher,
+    grade: grade,
+    section: section,
+    today: today,
+  });
+
+  // التأكد من إرسال البيانات
+  if (type === 'Abs') {
+    const absents = state.Abs.students.filter(s => state.Abs.attendance[s.id] === false);
+    if (!absents.length) return alert('لا يوجد غياب لتصديره.');
+    const rows = absents.map((s, i) => ({
+      serial: i + 1,
+      phone: s.phone,
+      name: s.name,
+      message: `ولي أمر الطالب ${s.name}، نعلمكم بغياب ابنكم عن الصف ${grade}/${section} بتاريخ ${today}. —  المعلم : ${teacher}`
+    }));
+
+    // التأكد من أن البيانات جاهزة للإرسال
+    console.log("Data to send to Web App:", rows);
+    sendData(rows, type);
+  } else {
+    // إضافة نفس الخطوات لبقية الأنواع (مثل `Viol` أو `Morning`) إذا لزم الأمر
+  }
+}
+
 
 function sendData(rows, type) {
   const loadingSpan = document.getElementById('loading' + type);
