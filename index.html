@@ -58,7 +58,7 @@ button:hover {
     display: block;
   }
 }
-  body { font-family: 'Tajawal', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; background: #e6f4ff; color: #111; padding: 0; margin: 0; direction: rtl; }
+  body { font-family: 'Tajawal', sans-serif; background: #e6f4ff; color: #111; padding: 0; margin: 0; direction: rtl; }
   h2 { margin: 0; padding: 0; }
   .menu-container { text-align: center; padding: 60px 20px; }
   .menu-btn { display: inline-block; padding: 20px 40px; margin: 20px; font-size: 20px; border-radius: 10px; cursor: pointer; color: white; border: none; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: transform 0.2s; }
@@ -82,7 +82,6 @@ button:hover {
   .absent { background: #dc2626; color: #fff; }
   .controls { margin-bottom: 20px; }
 </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
   <!-- الصفحة الرئيسية -->
@@ -140,7 +139,7 @@ button:hover {
   <div id="morningLateSection" class="hidden">
     <div class="top-bar">
       <button class="back-btn" onclick="showSection('mainMenu')">🏠 رجوع</button>
-      <h2><span class="icon">🎓</span>⏰ تسجيل التأخر الصباحي الطلبة بمدرسة معولة بن شمس</h2>
+      <h2><span class="icon">🎓</span>تسجيل ⏰ التأخر الصباحي للطلبة</h2>
     </div>
     <div class="section-content">
       <div class="controls">
@@ -210,7 +209,7 @@ button:hover {
 <script>
 const SHEET_URLS = ['https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ3CGPHmBFZ8myoys49bw1MLrC_tfdcKuZ-ZBSMczVqLZbxzSe-LZbyqCDv2YZLQ/pub?gid=626465739&single=true&output=csv'];
 const EXPORT_WEBAPP_URLS = {
-  Abs: "https://script.google.com/macros/s/AKfycbw_a7A9lz4huw5b0d1d1dRprUAYAxf8z8cWGXOTLZophxbOZEw4IkZ2jTEqn3ZTRer5/exec,
+  Abs: "https://script.google.com/macros/s/AKfycbw_a7A9lz4huw5b0d1d1dRprUAYAxf8z8cWGXOTLZophxbOZEw4IkZ2jTEqn3ZTRer5/exec",
   Viol: "https://script.google.com/macros/s/AKfycbw_a7A9lz4huw5b0d1d1dRprUAYAxf8z8cWGXOTLZophxbOZEw4IkZ2jTEqn3ZTRer5/exec",
   Morning: "https://script.google.com/macros/s/AKfycbw_a7A9lz4huw5b0d1d1dRprUAYAxf8z8cWGXOTLZophxbOZEw4IkZ2jTEqn3ZTRer5/exec"
 };
