@@ -438,10 +438,16 @@ function noAbsentees() {
     return;
   }
 
-  if (loadingSpan) loadingSpan.style.display = 'inline';
+  // إظهار حالة الإرسال
+  if (loadingSpan) {
+    loadingSpan.style.display = 'inline';
+    loadingSpan.textContent = '⏳ جاري الإرسال...';
+  }
+
   if (sendBtn) sendBtn.disabled = true;
 
   const rows = [{
+    serial: 1,
     name: "لا يوجد غياب",
     phone: "",
     message: `لا يوجد غياب في الصف ${grade} / ${section} - المعلم: ${teacher}`
@@ -449,26 +455,29 @@ function noAbsentees() {
 
   fetch(EXPORT_WEBAPP_URLS['Abs'], {
     method: 'POST',
-    mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(rows)
-  }).then(() => {
+  })
+  .then(() => {
     if (loadingSpan) loadingSpan.textContent = '✅ تم الإرسال بنجاح';
+
     setTimeout(() => {
       if (loadingSpan) {
         loadingSpan.style.display = 'none';
         loadingSpan.textContent = '⏳ جاري الإرسال...';
       }
     }, 1500);
+
     if (sendBtn) sendBtn.disabled = false;
-    resetForm(type);  // 🧹 تفريغ النموذج تلقائيًا
-    resetForm('Abs');
-  }).catch(err => {
+
+    resetForm('Abs');  // ← الصحيح
+  })
+  .catch(err => {
     alert('❌ فشل الإرسال');
     console.error(err);
+
     if (loadingSpan) loadingSpan.style.display = 'none';
     if (sendBtn) sendBtn.disabled = false;
-    resetForm(type);  // 🧹 تفريغ النموذج تلقائيًا
   });
 }
 
