@@ -81,9 +81,37 @@ button:hover {
   .present { background: #16a34a; color: #fff; }
   .absent { background: #dc2626; color: #fff; }
   .controls { margin-bottom: 20px; }
+
+.supervisor-btn {
+  background-color: #333;
+  border: 2px solid #111;
+}
+.supervisor-btn:hover {
+  background-color: #000;
+}
+
 </style>
 </head>
 <body>
+
+<!-- Supervisor Button -->
+<button class="icon-btn supervisor-btn" onclick="openSupervisorLogin()">👨‍💼 للمشرف</button>
+
+<!-- Supervisor Login -->
+<div id="supervisorLogin" style="display:none; text-align:center; margin-top:20px;">
+  <h3>🔐 أدخل كلمة السر للدخول</h3>
+  <input type="password" id="supPass" placeholder="••••" style="padding:10px; width:160px;">
+  <button onclick="checkSupervisorPass()">دخول</button>
+</div>
+
+<!-- Supervisor Panel -->
+<div id="supervisorPanel" style="display:none; text-align:center; margin-top:20px;">
+  <h3>📘 اختر نوع التقرير</h3>
+  <button onclick="sendSupervisorReport('Abs')">📗 تقرير الغياب</button>
+  <button onclick="sendSupervisorReport('Morning')">📙 تقرير التأخر</button>
+  <button onclick="sendSupervisorReport('Viol')">📕 تقرير السلوكيات</button>
+</div>
+
   <!-- الصفحة الرئيسية -->
   <div id="mainMenu" class="menu-container">
     <div style="text-align: center; margin-top: 20px;" class="fade-in">
@@ -438,16 +466,10 @@ function noAbsentees() {
     return;
   }
 
-  // إظهار حالة الإرسال
-  if (loadingSpan) {
-    loadingSpan.style.display = 'inline';
-    loadingSpan.textContent = '⏳ جاري الإرسال...';
-  }
-
+  if (loadingSpan) loadingSpan.style.display = 'inline';
   if (sendBtn) sendBtn.disabled = true;
 
   const rows = [{
-    serial: 1,
     name: "لا يوجد غياب",
     phone: "",
     message: `لا يوجد غياب في الصف ${grade} / ${section} - المعلم: ${teacher}`
@@ -455,29 +477,26 @@ function noAbsentees() {
 
   fetch(EXPORT_WEBAPP_URLS['Abs'], {
     method: 'POST',
+    mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(rows)
-  })
-  .then(() => {
+  }).then(() => {
     if (loadingSpan) loadingSpan.textContent = '✅ تم الإرسال بنجاح';
-
     setTimeout(() => {
       if (loadingSpan) {
         loadingSpan.style.display = 'none';
         loadingSpan.textContent = '⏳ جاري الإرسال...';
       }
     }, 1500);
-
     if (sendBtn) sendBtn.disabled = false;
-
-    resetForm('Abs');  // ← الصحيح
-  })
-  .catch(err => {
+    resetForm(type);  // 🧹 تفريغ النموذج تلقائيًا
+    resetForm('Abs');
+  }).catch(err => {
     alert('❌ فشل الإرسال');
     console.error(err);
-
     if (loadingSpan) loadingSpan.style.display = 'none';
     if (sendBtn) sendBtn.disabled = false;
+    resetForm(type);  // 🧹 تفريغ النموذج تلقائيًا
   });
 }
 
@@ -485,6 +504,65 @@ function noAbsentees() {
 function toggleDesignerInfo() {
   const info = document.getElementById('designerInfo');
   info.style.display = info.style.display === 'none' ? 'block' : 'none';
+}
+
+
+function openSupervisorLogin() {
+    document.getElementById("supervisorLogin").style.display = "block";
+}
+function checkSupervisorPass() {
+    const pass = document.getElementById("supPass").value.trim();
+    if (pass === "1982") {
+        document.getElementById("supervisorLogin").style.display = "none";
+        document.getElementById("supervisorPanel").style.display = "block";
+    } else {
+        alert("❌ كلمة السر غير صحيحة");
+    }
+}
+
+const supervisorNumbers = [
+    "9689XXXXXXX",
+    "9689YYYYYYY"
+];
+
+async function sendWhatsAppToSupervisor(message) {
+    const instance = "instance150506";
+    const token = "lwcl28v4w3jgfxzw";
+
+    for (let num of supervisorNumbers) {
+        await fetch(`https://api.ultramsg.com/${instance}/messages/chat`, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `token=${token}&to=${num}&body=${encodeURIComponent(message)}`
+        });
+    }
+}
+
+function sendSupervisorReport(type) {
+    fetch(EXPORT_WEBAPP_URLS[type])
+        .then(res => res.json())
+        .then(rows => {
+            if (!rows || rows.length === 0) {
+                alert("لا توجد بيانات لإرسالها");
+                return;
+            }
+            let title = type === "Abs" ? "تقرير الغياب" :
+                        type === "Morning" ? "تقرير التأخر" :
+                        "تقرير السلوكيات";
+
+            let report = `📘 ${title}\n\n`;
+
+            rows.forEach((r, i) => {
+                report += `${i + 1}- ${r.name} — ${r.message}\n`;
+            });
+
+            sendWhatsAppToSupervisor(report);
+            alert("✔ تم إرسال تقرير المشرف بنجاح");
+        })
+        .catch(err => {
+            alert("❌ فشل جلب البيانات");
+            console.error(err);
+        });
 }
 
 </script>
