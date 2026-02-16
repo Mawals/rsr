@@ -299,6 +299,7 @@ function renderAbsence() {
 }
 
 
+
 function renderViolations() {
   const tbody = document.getElementById('studentsBodyViol');
   tbody.innerHTML = '';
@@ -313,59 +314,109 @@ function renderViolations() {
 
     const tdViolation = document.createElement('td');
 
-    const title = document.createElement('div');
-    title.textContent = 'الإخلال بنظام الطابور أو الحصص الدراسية أو الأنشطة المدرسية';
-    title.style.cursor = 'pointer';
-    title.style.background = '#f8d7da';
-    title.style.padding = '6px';
-    title.style.borderRadius = '6px';
-    title.style.marginBottom = '5px';
-
-    const subList = document.createElement('div');
-    subList.style.display = 'none';
-    subList.style.marginTop = '5px';
-
-    const options = [
-      'النوم في أثناء الحصص أو الأنشطة المدرسية',
-      'الإهمال في أداء الواجبات أو الأنشطة المدرسية',
-      'عدم الإنصات لتوجيهات المعلم',
-      'التسبب في الإزعاج بالقرب من الصفوف الدراسية',
-      'عدم الالتزام بإحضار الكتب والدفاتر والأدوات المدرسية والملابس الرياضية',
-      'التأخر عن الحصص الدراسية أو الغياب'
+    const mainViolations = [
+      {
+        title: 'الإخلال بنظام الطابور أو الحصص الدراسية أو الأنشطة المدرسية',
+        subOptions: [
+          'النوم في أثناء الحصص أو الأنشطة المدرسية',
+          'الإهمال في أداء الواجبات أو الأنشطة المدرسية',
+          'عدم الإنصات لتوجيهات المعلم',
+          'التسبب في الإزعاج بالقرب من الصفوف الدراسية',
+          'عدم الالتزام بإحضار الكتب والدفاتر والأدوات المدرسية والملابس الرياضية',
+          'التأخر عن الحصص الدراسية أو الغياب'
+        ]
+      },
+      {
+        title: 'الشجار مع زملائه والإساءة بالقول'
+      },
+      {
+        title: 'تناول المأكولات أو المشروبات في غير الوقت المخصص أو مضغ العلكة'
+      },
+      {
+        title: 'عدم المحافظة على النظافة أو المظهر الشخصي أو مرافق المدرسة'
+      },
+      {
+        title: 'التأخر عن الحصة الدراسية'
+      }
     ];
 
-    options.forEach(optionText => {
-      const label = document.createElement('label');
-      label.style.display = 'block';
+    mainViolations.forEach(main => {
+      const title = document.createElement('div');
+      title.textContent = main.title;
+      title.style.cursor = 'pointer';
+      title.style.background = '#f8d7da';
+      title.style.padding = '6px';
+      title.style.borderRadius = '6px';
+      title.style.marginBottom = '5px';
 
-      const radio = document.createElement('input');
-      radio.type = 'radio';
-      radio.name = 'viol_' + student.id;
-      radio.value = optionText;
+      const container = document.createElement('div');
+      container.style.marginBottom = '8px';
 
-      if (state.Viol.violations[student.id] === optionText) {
-        radio.checked = true;
+      if (main.subOptions) {
+        const subList = document.createElement('div');
+        subList.style.display = 'none';
+        subList.style.marginTop = '5px';
+
+        main.subOptions.forEach(optionText => {
+          const label = document.createElement('label');
+          label.style.display = 'block';
+
+          const radio = document.createElement('input');
+          radio.type = 'radio';
+          radio.name = 'viol_' + student.id;
+          radio.value = optionText;
+
+          if (state.Viol.violations[student.id] === optionText) {
+            radio.checked = true;
+          }
+
+          radio.onchange = () => {
+            state.Viol.violations[student.id] = optionText;
+          };
+
+          label.appendChild(radio);
+          label.append(' ' + optionText);
+          subList.appendChild(label);
+        });
+
+        title.onclick = () => {
+          subList.style.display = subList.style.display === 'none' ? 'block' : 'none';
+        };
+
+        container.appendChild(title);
+        container.appendChild(subList);
+      } else {
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = 'viol_' + student.id;
+        radio.value = main.title;
+        radio.style.marginLeft = '5px';
+
+        if (state.Viol.violations[student.id] === main.title) {
+          radio.checked = true;
+        }
+
+        radio.onchange = () => {
+          state.Viol.violations[student.id] = main.title;
+        };
+
+        title.onclick = () => {
+          radio.checked = true;
+          state.Viol.violations[student.id] = main.title;
+        };
+
+        container.appendChild(radio);
+        container.appendChild(title);
       }
 
-      radio.onchange = () => {
-        state.Viol.violations[student.id] = optionText;
-      };
-
-      label.appendChild(radio);
-      label.append(' ' + optionText);
-      subList.appendChild(label);
+      tdViolation.appendChild(container);
     });
 
-    title.onclick = () => {
-      subList.style.display = subList.style.display === 'none' ? 'block' : 'none';
-    };
-
-    tdViolation.appendChild(title);
-    tdViolation.appendChild(subList);
     tr.appendChild(tdViolation);
     tbody.appendChild(tr);
   });
 }
+
 
 
 function exportData(type) {
