@@ -3430,6 +3430,42 @@
                 }
             };
 
+            // حفظ محلي آمن: يمنع اختفاء الصفحة عند امتلاء مساحة localStorage بسبب صور التواقيع الكبيرة.
+            // لا يحذف أي بيانات من Firebase؛ فقط يمنع تعطّل الصفحة بسبب التخزين المحلي.
+            const safeLocalSetItem = (key, value) => {
+                try {
+                    const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+                    // التواقيع اليومية صور Base64 كبيرة ومصدرها الأساسي الآن Firebase /signatures.
+                    // لذلك لا نخزن النسخة الكبيرة محليًا إذا كانت ستضغط على مساحة المتصفح.
+                    if (String(key).startsWith('exam_signatures_') && stringValue && stringValue.length > 120000) {
+                        console.warn('تم تخطي حفظ نسخة محلية كبيرة للتواقيع حتى لا تختفي الصفحة:', key);
+                        return false;
+                    }
+                    localStorage.setItem(key, stringValue);
+                    return true;
+                } catch (error) {
+                    console.warn('تعذر الحفظ المحلي وتم تجاهله بدون حذف البيانات:', key, error);
+                    try {
+                        // تنظيف آمن: إزالة كاش التواقيع المحلي فقط إذا امتلأت المساحة.
+                        // التواقيع الأصلية باقية في Firebase في subcollection ولا تتأثر.
+                        if (error && (String(error.name).includes('Quota') || String(error.message).includes('quota'))) {
+                            Object.keys(localStorage).forEach((storageKey) => {
+                                if (storageKey.startsWith('exam_signatures_') && storageKey !== key) {
+                                    localStorage.removeItem(storageKey);
+                                }
+                            });
+                            if (!String(key).startsWith('exam_signatures_')) {
+                                localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+                                return true;
+                            }
+                        }
+                    } catch (cleanupError) {
+                        console.warn('تعذر تنظيف كاش التواقيع المحلي:', cleanupError);
+                    }
+                    return false;
+                }
+            };
+
 
             const safeObject = (value, fallback) => {
                 return value && typeof value === 'object' && !Array.isArray(value) ? value : fallback;
@@ -3665,7 +3701,7 @@
             };
             const saveGlobalControlSignatures = (source = {}) => {
                 const controlSignatures = getControlSignaturesOnly(source);
-                localStorage.setItem(CONTROL_SIGNATURES_KEY, JSON.stringify(controlSignatures));
+                safeLocalSetItem(CONTROL_SIGNATURES_KEY, JSON.stringify(controlSignatures));
             };
 
             // تصنيف التواقيع: تواقيع الكنترول ثابتة، وباقي التواقيع يومية حسب التاريخ.
@@ -4101,7 +4137,7 @@
 
             const saveSignatureDeletesForDate = (dateToSave, deletesMap) => {
                 try {
-                    localStorage.setItem(`exam_signature_deletes_${dateToSave}`, JSON.stringify(deletesMap || {}));
+                    safeLocalSetItem(`exam_signature_deletes_${dateToSave}`, JSON.stringify(deletesMap || {}));
                 } catch (e) {
                     console.warn("Could not save signature delete map", e);
                 }
@@ -4133,7 +4169,7 @@
                     const normalized = normalizeAllLoadedPayload(data || {});
 
                     setSessionsData(normalized.sessionsData);
-                    localStorage.setItem(`exam_sessions_${cloudDate}`, JSON.stringify(normalized.sessionsData));
+                    safeLocalSetItem(`exam_sessions_${cloudDate}`, JSON.stringify(normalized.sessionsData));
                     setEnvelopeData(normalized.envelopeData);
                     setDailyReportNotes(normalized.dailyReportNotes);
                     setProctoringExtra(normalized.proctoringExtra);
@@ -4143,7 +4179,7 @@
                     const { mergedSignatures, mergedDeletes } = buildMergedSignatures(data, cloudDate);
                     setSignatures(mergedSignatures);
                     setSignatureDeletes(mergedDeletes);
-                    localStorage.setItem(`exam_signatures_${cloudDate}`, JSON.stringify(mergedSignatures));
+                    safeLocalSetItem(`exam_signatures_${cloudDate}`, JSON.stringify(mergedSignatures));
                     saveSignatureDeletesForDate(cloudDate, mergedDeletes);
                     saveGlobalControlSignatures(mergedSignatures);
                 } catch (error) {
@@ -4212,7 +4248,7 @@
                         const payload = snap.data() || {};
                         applyCloudPayload(payload);
                         const { mergedSignatures, mergedDeletes } = buildMergedSignatures(payload, dateToLoad);
-                        localStorage.setItem(`exam_signatures_${dateToLoad}`, JSON.stringify(mergedSignatures));
+                        safeLocalSetItem(`exam_signatures_${dateToLoad}`, JSON.stringify(mergedSignatures));
                         saveSignatureDeletesForDate(dateToLoad, mergedDeletes);
                         setAlertMessage({ text: "تم تحميل بيانات هذا التاريخ من السحابة." });
                         setTimeout(() => setAlertMessage(null), 3000);
@@ -4318,7 +4354,7 @@
                             }
                         });
 
-                        localStorage.setItem(`exam_signatures_${currentDate}`, JSON.stringify(merged));
+                        safeLocalSetItem(`exam_signatures_${currentDate}`, JSON.stringify(merged));
                         saveGlobalControlSignatures(merged);
                         console.log(`تمت مزامنة التواقيع من Firebase (${sourceLabel})`, currentDate, Object.keys(merged).length);
                         return merged;
@@ -4414,35 +4450,35 @@
 
             // الحفظ الفوري المباشر لجميع الحالات عند أي تعديل من المستخدم
             useEffect(() => {
-                localStorage.setItem(`exam_sessions_${currentDate}`, JSON.stringify(sessionsData));
+                safeLocalSetItem(`exam_sessions_${currentDate}`, JSON.stringify(sessionsData));
             }, [sessionsData, currentDate]);
 
             useEffect(() => {
-                localStorage.setItem(`exam_envelopes_${currentDate}`, JSON.stringify(envelopeData));
+                safeLocalSetItem(`exam_envelopes_${currentDate}`, JSON.stringify(envelopeData));
             }, [envelopeData, currentDate]);
 
             useEffect(() => {
-                localStorage.setItem(`exam_daily_notes_${currentDate}`, JSON.stringify(dailyReportNotes));
+                safeLocalSetItem(`exam_daily_notes_${currentDate}`, JSON.stringify(dailyReportNotes));
             }, [dailyReportNotes, currentDate]);
 
             useEffect(() => {
-                localStorage.setItem(`exam_proctoring_extra_${currentDate}`, JSON.stringify(proctoringExtra));
+                safeLocalSetItem(`exam_proctoring_extra_${currentDate}`, JSON.stringify(proctoringExtra));
             }, [proctoringExtra, currentDate]);
 
             useEffect(() => {
-                localStorage.setItem(`exam_second_period_proctoring_${currentDate}`, JSON.stringify(secondPeriodProctoring));
+                safeLocalSetItem(`exam_second_period_proctoring_${currentDate}`, JSON.stringify(secondPeriodProctoring));
             }, [secondPeriodProctoring, currentDate]);
 
             useEffect(() => {
-                localStorage.setItem(`exam_individual_absentee_${currentDate}`, JSON.stringify(individualAbsentee));
+                safeLocalSetItem(`exam_individual_absentee_${currentDate}`, JSON.stringify(individualAbsentee));
             }, [individualAbsentee, currentDate]);
 
             useEffect(() => {
-                localStorage.setItem(`exam_violation_${currentDate}`, JSON.stringify(violationData));
+                safeLocalSetItem(`exam_violation_${currentDate}`, JSON.stringify(violationData));
             }, [violationData, currentDate]);
 
             useEffect(() => {
-                localStorage.setItem(`exam_signatures_${currentDate}`, JSON.stringify(signatures));
+                safeLocalSetItem(`exam_signatures_${currentDate}`, JSON.stringify(signatures));
                 saveGlobalControlSignatures(signatures);
             }, [signatures, currentDate]);
 
@@ -4550,7 +4586,7 @@
                 const updated = [...sessionsData];
                 updated[index] = { ...updated[index], [field]: value };
                 setSessionsData(updated);
-                localStorage.setItem(`exam_sessions_${currentDate}`, JSON.stringify(updated));
+                safeLocalSetItem(`exam_sessions_${currentDate}`, JSON.stringify(updated));
                 if (['absentNormal', 'absentAdults', 'absenteesNames', 'subject', 'grade'].includes(field)) {
                     syncAbsenceToDailyReport(updated);
                 }
@@ -4716,7 +4752,7 @@
                 };
 
                 setSignatures(updatedSignatures);
-                localStorage.setItem(`exam_signatures_${currentDate}`, JSON.stringify(updatedSignatures));
+                safeLocalSetItem(`exam_signatures_${currentDate}`, JSON.stringify(updatedSignatures));
                 saveSignatureDeletesForDate(currentDate, updatedDeletes);
                 setSignatureDeletes(updatedDeletes);
                 if (isControlSignatureId(signatureId)) saveGlobalControlSignatures(updatedSignatures);
@@ -4762,7 +4798,7 @@
                 delete updatedSignatures[id];
 
                 setSignatures(updatedSignatures);
-                localStorage.setItem(`exam_signatures_${currentDate}`, JSON.stringify(updatedSignatures));
+                safeLocalSetItem(`exam_signatures_${currentDate}`, JSON.stringify(updatedSignatures));
                 saveSignatureDeletesForDate(currentDate, updatedDeletes);
                 setSignatureDeletes(updatedDeletes);
                 if (isControlSignatureId(id)) saveGlobalControlSignatures(updatedSignatures);
@@ -4809,7 +4845,7 @@
                         const key = localStorage.key(i);
                         if (key) localData[key] = localStorage.getItem(key);
                     }
-                    const restoreScript = `\n<script>\ntry {\n  const backupLocalData = ${JSON.stringify(localData)};\n  Object.keys(backupLocalData).forEach(function(key) {\n    if (localStorage.getItem(key) === null) localStorage.setItem(key, backupLocalData[key]);\n  });\n} catch (e) { console.warn('backup restore skipped', e); }\n<\/script>\n`;
+                    const restoreScript = `\n<script>\ntry {\n  const backupLocalData = ${JSON.stringify(localData)};\n  Object.keys(backupLocalData).forEach(function(key) {\n    if (localStorage.getItem(key) === null) safeLocalSetItem(key, backupLocalData[key]);\n  });\n} catch (e) { console.warn('backup restore skipped', e); }\n<\/script>\n`;
                     let html = document.documentElement.outerHTML;
                     html = html.replace('</body>', restoreScript + '</body>');
                     const blob = new Blob(['<!DOCTYPE html>\n' + html], { type: 'text/html;charset=utf-8' });
@@ -4883,7 +4919,7 @@
                                         value={currentDate} 
                                         onChange={(e) => {
                                             const newDate = e.target.value;
-                                            localStorage.setItem("savedExamDate", newDate);
+                                            safeLocalSetItem("savedExamDate", newDate);
                                             setCurrentDate(newDate);
                                         }}
                                         className="p-1.5 outline-none  text-blue-900 cursor-pointer bg-transparent"
