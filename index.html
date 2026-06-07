@@ -3485,7 +3485,8 @@
             };
 
             const normalizeSessionsForCloud = (value, fallback) => {
-                const source = Array.isArray(value) && value.length ? value : fallback;
+                const safeFallback = Array.isArray(fallback) && fallback.length ? fallback : generateDefaultSessions();
+                const source = Array.isArray(value) && value.length ? value : safeFallback;
                 return ensureSpecialCommitteeSession(source.map(normalizeSessionRowSafe)).map(row => row.grade === SPECIAL_COMMITTEE_GRADE ? {
                     ...row,
                     room: row.room || SPECIAL_COMMITTEE_ROOM,
@@ -3557,6 +3558,76 @@
                 impersonatorName: '', impersonatorId: '', impersonatorRelation: '', impersonatorJob: '', impersonatorWorkplace: '', impersonatorPhone: '', impersonatorTime: '',
                 proctor1Name: '', proctor1Id: '', proctor1Statement: '', proctor2Name: '', proctor2Id: '', proctor2Statement: '',
                 committeeStatement: '', directorStatement: ''
+            });
+
+
+            // تطبيع شامل للبيانات القادمة من Firebase أو التخزين المحلي.
+            // الهدف: إذا كان تاريخ معيّن في Firebase يحتوي حقولًا ناقصة/قديمة/بصيغة خطأ،
+            // لا تتعطل الصفحة ولا تُمسح البيانات السابقة.
+            const normalizeEnvelopeData = (source) => {
+                const base = defaultEnvelopeData();
+                const parsed = safeObject(source, {});
+                const rowsSource = Array.isArray(parsed.rows) ? parsed.rows : [];
+                const membersSource = Array.isArray(parsed.members) ? parsed.members : [];
+                return {
+                    ...base,
+                    ...parsed,
+                    rows: Array.from({ length: 10 }, (_, i) => ({
+                        subject: rowsSource[i]?.subject || '',
+                        minute: rowsSource[i]?.minute ?? base.rows[i].minute,
+                        hour: rowsSource[i]?.hour || ''
+                    })),
+                    members: Array.from({ length: 5 }, (_, i) => membersSource[i] || '')
+                };
+            };
+
+            const normalizeProctoringExtra = (source) => {
+                const base = defaultProctoringExtra();
+                const parsed = safeObject(source, {});
+                const floorSource = Array.isArray(parsed.floorProctors) ? parsed.floorProctors : [];
+                const standbySource = Array.isArray(parsed.standbyTeachers) ? parsed.standbyTeachers : [];
+                return {
+                    floorProctors: Array.from({ length: 2 }, (_, i) => ({
+                        name: floorSource[i]?.name || '',
+                        location: floorSource[i]?.location || ''
+                    })),
+                    standbyTeachers: Array.from({ length: 2 }, (_, i) => standbySource[i] || '')
+                };
+            };
+
+            const normalizeSecondPeriodProctoring = (source) => {
+                const parsed = safeObject(source, {});
+                const extra = normalizeProctoringExtra(parsed);
+                return {
+                    rooms: safeObject(parsed.rooms, {}),
+                    floorProctors: extra.floorProctors,
+                    standbyTeachers: extra.standbyTeachers
+                };
+            };
+
+            const normalizeIndividualAbsentee = (source) => ({
+                ...defaultIndividualAbsentee(),
+                ...safeObject(source, {})
+            });
+
+            const normalizeViolationData = (source) => {
+                const parsed = safeObject(source, {});
+                return {
+                    ...defaultViolationData(),
+                    ...parsed,
+                    selectedInfractions: safeObject(parsed.selectedInfractions, {}),
+                    infractionCounts: safeObject(parsed.infractionCounts, { a: '', b: '', c: '' })
+                };
+            };
+
+            const normalizeAllLoadedPayload = (data = {}) => ({
+                sessionsData: normalizeSessionsForCloud(data.sessionsData, readLocalJSON(`exam_sessions_${currentDate}`, generateDefaultSessions())),
+                envelopeData: normalizeEnvelopeData(data.envelopeData),
+                dailyReportNotes: normalizeDailyReportNotes(data.dailyReportNotes),
+                proctoringExtra: normalizeProctoringExtra(data.proctoringExtra),
+                secondPeriodProctoring: normalizeSecondPeriodProctoring(data.secondPeriodProctoring),
+                individualAbsentee: normalizeIndividualAbsentee(data.individualAbsentee),
+                violationData: normalizeViolationData(data.violationData)
             });
 
             // حالات الحفظ السحابي Firebase
@@ -3721,7 +3792,7 @@
             });
 
             const [envelopeData, setEnvelopeData] = useState(() => {
-                return readLocalJSON(`exam_envelopes_${currentDate}`, defaultEnvelopeData());
+                return normalizeEnvelopeData(readLocalJSON(`exam_envelopes_${currentDate}`, defaultEnvelopeData()));
             });
 
             const [dailyReportNotes, setDailyReportNotes] = useState(() => {
@@ -3729,19 +3800,19 @@
             });
 
             const [proctoringExtra, setProctoringExtra] = useState(() => {
-                return readLocalJSON(`exam_proctoring_extra_${currentDate}`, defaultProctoringExtra());
+                return normalizeProctoringExtra(readLocalJSON(`exam_proctoring_extra_${currentDate}`, defaultProctoringExtra()));
             });
 
             const [secondPeriodProctoring, setSecondPeriodProctoring] = useState(() => {
-                return readLocalJSON(`exam_second_period_proctoring_${currentDate}`, defaultSecondPeriodProctoring());
+                return normalizeSecondPeriodProctoring(readLocalJSON(`exam_second_period_proctoring_${currentDate}`, defaultSecondPeriodProctoring()));
             });
 
             const [individualAbsentee, setIndividualAbsentee] = useState(() => {
-                return readLocalJSON(`exam_individual_absentee_${currentDate}`, defaultIndividualAbsentee());
+                return normalizeIndividualAbsentee(readLocalJSON(`exam_individual_absentee_${currentDate}`, defaultIndividualAbsentee()));
             });
 
             const [violationData, setViolationData] = useState(() => {
-                return readLocalJSON(`exam_violation_${currentDate}`, defaultViolationData());
+                return normalizeViolationData(readLocalJSON(`exam_violation_${currentDate}`, defaultViolationData()));
             });
 
             // تحميل كود التوقيع الرقمي المخزن محلياً
@@ -3766,12 +3837,12 @@
                 const safePayload = {
                     currentDate,
                     sessionsData: normalizeSessionsForCloud(sessionsData, fallbackSessions),
-                    envelopeData: safeObject(envelopeData, defaultEnvelopeData()),
-                    dailyReportNotes: normalizeDailyReportNotes(safeObject(dailyReportNotes, defaultDailyReportNotes())),
-                    proctoringExtra: safeObject(proctoringExtra, defaultProctoringExtra()),
-                    secondPeriodProctoring: safeObject(secondPeriodProctoring, defaultSecondPeriodProctoring()),
-                    individualAbsentee: safeObject(individualAbsentee, defaultIndividualAbsentee()),
-                    violationData: safeObject(violationData, defaultViolationData()),
+                    envelopeData: normalizeEnvelopeData(envelopeData),
+                    dailyReportNotes: normalizeDailyReportNotes(dailyReportNotes),
+                    proctoringExtra: normalizeProctoringExtra(proctoringExtra),
+                    secondPeriodProctoring: normalizeSecondPeriodProctoring(secondPeriodProctoring),
+                    individualAbsentee: normalizeIndividualAbsentee(individualAbsentee),
+                    violationData: normalizeViolationData(violationData),
                     // مهم جداً: لا نحفظ صور التواقيع Base64 داخل مستند اليوم الرئيسي.
                     // Firestore له حد لحجم المستند، لذلك تحفظ التواقيع اليومية في Subcollection مستقلة:
                     // exam_records / currentDate / signatures / signatureId
@@ -4059,17 +4130,16 @@
                 if (!data) return;
                 try {
                     const cloudDate = currentDate;
-                    const localFallbackSessions = readLocalJSON(`exam_sessions_${cloudDate}`, generateDefaultSessions());
-                    const normalizedSessions = normalizeSessionsForCloud(data.sessionsData, localFallbackSessions);
+                    const normalized = normalizeAllLoadedPayload(data || {});
 
-                    setSessionsData(normalizedSessions);
-                    localStorage.setItem(`exam_sessions_${cloudDate}`, JSON.stringify(normalizedSessions));
-                    setEnvelopeData(safeObject(data.envelopeData, defaultEnvelopeData()));
-                    setDailyReportNotes(normalizeDailyReportNotes(safeObject(data.dailyReportNotes, defaultDailyReportNotes())));
-                    setProctoringExtra(safeObject(data.proctoringExtra, defaultProctoringExtra()));
-                    setSecondPeriodProctoring(safeObject(data.secondPeriodProctoring, defaultSecondPeriodProctoring()));
-                    setIndividualAbsentee(safeObject(data.individualAbsentee, defaultIndividualAbsentee()));
-                    setViolationData(safeObject(data.violationData, defaultViolationData()));
+                    setSessionsData(normalized.sessionsData);
+                    localStorage.setItem(`exam_sessions_${cloudDate}`, JSON.stringify(normalized.sessionsData));
+                    setEnvelopeData(normalized.envelopeData);
+                    setDailyReportNotes(normalized.dailyReportNotes);
+                    setProctoringExtra(normalized.proctoringExtra);
+                    setSecondPeriodProctoring(normalized.secondPeriodProctoring);
+                    setIndividualAbsentee(normalized.individualAbsentee);
+                    setViolationData(normalized.violationData);
                     const { mergedSignatures, mergedDeletes } = buildMergedSignatures(data, cloudDate);
                     setSignatures(mergedSignatures);
                     setSignatureDeletes(mergedDeletes);
@@ -4167,17 +4237,17 @@
                 const loadedSessions = normalizeSessionsForCloud(readLocalJSON(`exam_sessions_${currentDate}`, generateDefaultSessions()), generateDefaultSessions());
                 setSessionsData(loadedSessions);
 
-                setEnvelopeData(readLocalJSON(`exam_envelopes_${currentDate}`, defaultEnvelopeData()));
+                setEnvelopeData(normalizeEnvelopeData(readLocalJSON(`exam_envelopes_${currentDate}`, defaultEnvelopeData())));
 
                 setDailyReportNotes(normalizeDailyReportNotes(readLocalJSON(`exam_daily_notes_${currentDate}`, defaultDailyReportNotes())));
 
-                setProctoringExtra(readLocalJSON(`exam_proctoring_extra_${currentDate}`, defaultProctoringExtra()));
+                setProctoringExtra(normalizeProctoringExtra(readLocalJSON(`exam_proctoring_extra_${currentDate}`, defaultProctoringExtra())));
 
-                setSecondPeriodProctoring(readLocalJSON(`exam_second_period_proctoring_${currentDate}`, defaultSecondPeriodProctoring()));
+                setSecondPeriodProctoring(normalizeSecondPeriodProctoring(readLocalJSON(`exam_second_period_proctoring_${currentDate}`, defaultSecondPeriodProctoring())));
 
-                setIndividualAbsentee(readLocalJSON(`exam_individual_absentee_${currentDate}`, defaultIndividualAbsentee()));
+                setIndividualAbsentee(normalizeIndividualAbsentee(readLocalJSON(`exam_individual_absentee_${currentDate}`, defaultIndividualAbsentee())));
 
-                setViolationData(readLocalJSON(`exam_violation_${currentDate}`, defaultViolationData()));
+                setViolationData(normalizeViolationData(readLocalJSON(`exam_violation_${currentDate}`, defaultViolationData())));
 
                 setSignatures(loadSignaturesForDate(currentDate));
                 setSignatureDeletes(loadSignatureDeletesForDate(currentDate));
@@ -4302,12 +4372,12 @@
                             console.warn('تم تجاهل sessionsData غير صالحة من Firebase لهذا التاريخ:', currentDate, data.sessionsData);
                         }
 
-                        if (data.envelopeData && typeof data.envelopeData === 'object' && !Array.isArray(data.envelopeData)) setEnvelopeData(data.envelopeData);
+                        if (data.envelopeData && typeof data.envelopeData === 'object' && !Array.isArray(data.envelopeData)) setEnvelopeData(normalizeEnvelopeData(data.envelopeData));
                         if (data.dailyReportNotes && typeof data.dailyReportNotes === 'object' && !Array.isArray(data.dailyReportNotes)) setDailyReportNotes(normalizeDailyReportNotes(data.dailyReportNotes));
-                        if (data.proctoringExtra && typeof data.proctoringExtra === 'object' && !Array.isArray(data.proctoringExtra)) setProctoringExtra(data.proctoringExtra);
-                        if (data.secondPeriodProctoring && typeof data.secondPeriodProctoring === 'object' && !Array.isArray(data.secondPeriodProctoring)) setSecondPeriodProctoring(data.secondPeriodProctoring);
-                        if (data.individualAbsentee && typeof data.individualAbsentee === 'object' && !Array.isArray(data.individualAbsentee)) setIndividualAbsentee(data.individualAbsentee);
-                        if (data.violationData && typeof data.violationData === 'object' && !Array.isArray(data.violationData)) setViolationData(data.violationData);
+                        if (data.proctoringExtra && typeof data.proctoringExtra === 'object' && !Array.isArray(data.proctoringExtra)) setProctoringExtra(normalizeProctoringExtra(data.proctoringExtra));
+                        if (data.secondPeriodProctoring && typeof data.secondPeriodProctoring === 'object' && !Array.isArray(data.secondPeriodProctoring)) setSecondPeriodProctoring(normalizeSecondPeriodProctoring(data.secondPeriodProctoring));
+                        if (data.individualAbsentee && typeof data.individualAbsentee === 'object' && !Array.isArray(data.individualAbsentee)) setIndividualAbsentee(normalizeIndividualAbsentee(data.individualAbsentee));
+                        if (data.violationData && typeof data.violationData === 'object' && !Array.isArray(data.violationData)) setViolationData(normalizeViolationData(data.violationData));
                     } catch (safeApplyError) {
                         console.error('تم منع تعطل الصفحة بسبب بيانات Firebase غير صالحة:', safeApplyError);
                     }
@@ -5033,8 +5103,36 @@
             );
         };
 
+        class AppErrorBoundary extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = { hasError: false, message: '' };
+            }
+            static getDerivedStateFromError(error) {
+                return { hasError: true, message: error && error.message ? error.message : 'حدث خطأ غير متوقع' };
+            }
+            componentDidCatch(error, info) {
+                console.error('تم منع اختفاء الصفحة بسبب خطأ في العرض:', error, info);
+            }
+            render() {
+                if (this.state.hasError) {
+                    return (
+                        <div dir="rtl" className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+                            <div className="bg-white rounded-2xl shadow-lg border border-red-100 p-6 max-w-xl text-right space-y-4">
+                                <h1 className="text-xl font-bold text-red-700">تم منع اختفاء الصفحة</h1>
+                                <p className="text-sm text-gray-700 leading-relaxed">توجد بيانات غير متوافقة في هذا التاريخ، لكن لم يتم حذف أي بيانات. اضغط الزر التالي لإعادة فتح النظام بأمان.</p>
+                                <p className="text-xs text-gray-400 break-all">{this.state.message}</p>
+                                <button className="bg-blue-800 hover:bg-blue-900 text-white px-4 py-2 rounded-xl text-sm" onClick={() => { this.setState({ hasError: false, message: '' }); window.location.reload(); }}>إعادة فتح آمنة</button>
+                            </div>
+                        </div>
+                    );
+                }
+                return this.props.children;
+            }
+        }
+
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        root.render(<AppErrorBoundary><App /></AppErrorBoundary>);
     </script>
 
 <script>
