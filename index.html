@@ -378,7 +378,7 @@
                 { grades: ["11"], subject: "الدراسات الاجتماعية / مواد التخصصات المهنية والصناعية", period: "الفترة الصباحية", time: "8:00 - 10:00" }
             ],
             "2026-06-11": [
-                { grades: ["11"], subject: "العلوم البيئية", period: "الفترة الصباحية", time: "8:00 - 10:30" }
+                { grades: ["11"], subject: "العلوم البيئية", period: "الفترة الصباحية", time: "8:00 - 10:30", rooms: "4 قاعات: 11/4 - 11/7", sections: ["11/4","11/5","11/6","11/7"] }
             ]
         };
 
@@ -548,7 +548,7 @@
             "الكيمياء": { "11/1": 24, "11/2": 24, "11/3": 24, "11/4": 23 },
             "الفيزياء": { "11/1": 24, "11/2": 24, "11/3": 24, "11/4": 23 },
             "التاريخ": { "11/1": 17, "11/2": 17 },
-            "العلوم البيئية": { "11/5": 24, "11/6": 27, "11/7": 27 },
+            "العلوم البيئية": { "11/4": 23, "11/5": 24, "11/6": 27, "11/7": 27 },
             "الجغرافيا الاقتصادية": { "11/1": 22, "11/2": 23, "11/3": 23 },
             "الرياضيات المتقدمة": { "11/1": 24, "11/2": 24, "11/3": 24, "11/4": 23 },
             "الرياضيات الأساسية": { "11/5": 24, "11/6": 27, "11/7": 27, "11/8": 24 },
@@ -672,7 +672,7 @@
                     add(sectionsByGrade(11), "الدراسات الاجتماعية / هذا وطني");
                     break;
                 case "2026-06-11":
-                    add(["11/5", "11/6", "11/7"], "العلوم البيئية");
+                    add(["11/4", "11/5", "11/6", "11/7"], "العلوم البيئية");
                     break;
                 default:
                     break;
@@ -1179,7 +1179,7 @@
             ["الكيمياء", "11/1=24، 11/2=24، 11/3=24، 11/4=23", "4", "95"],
             ["الفيزياء", "11/1=24، 11/2=24، 11/3=24، 11/4=23", "4", "95"],
             ["التاريخ", "11/1=17، 11/2=17", "2", "34"],
-            ["العلوم البيئية", "11/5=24، 11/6=27، 11/7=27", "3", "78"],
+            ["العلوم البيئية", "11/4=23، 11/5=24، 11/6=27، 11/7=27", "4", "101"],
             ["الجغرافيا الاقتصادية", "11/1=22، 11/2=23، 11/3=23", "3", "68"],
             ["الرياضيات المتقدمة", "11/1=24، 11/2=24، 11/3=24، 11/4=23", "4", "95"],
             ["الرياضيات الأساسية", "11/5=24، 11/6=27، 11/7=27، 11/8=24", "4", "102"],
@@ -3520,16 +3520,52 @@
                 };
             };
 
+            const mergeOfficialScheduledSessions = (rows = []) => {
+                const normalizedRows = ensureSpecialCommitteeSession(Array.isArray(rows) ? rows : []);
+                const officialRows = (generateDefaultSessions && typeof generateDefaultSessions === 'function') ? generateDefaultSessions() : [];
+                if (!Array.isArray(officialRows) || officialRows.length === 0) return normalizedRows;
+
+                const makeRowKey = (row = {}) => [
+                    normalizeArabicText(row.period || 'الفترة الأولى'),
+                    normalizeArabicText(row.room || ''),
+                    normalizeArabicText(row.grade || ''),
+                    normalizeArabicText(row.subject || '')
+                ].join('|');
+
+                const existingKeys = new Set(normalizedRows.map(makeRowKey));
+                const merged = [...normalizedRows];
+
+                officialRows.forEach((officialRow) => {
+                    if (!officialRow || officialRow.grade === SPECIAL_COMMITTEE_GRADE) return;
+                    const officialKey = makeRowKey(officialRow);
+                    if (!existingKeys.has(officialKey)) {
+                        merged.push(officialRow);
+                        existingKeys.add(officialKey);
+                    }
+                });
+
+                const specialRows = merged.filter(row => row.grade === SPECIAL_COMMITTEE_GRADE);
+                const normalRows = merged.filter(row => row.grade !== SPECIAL_COMMITTEE_GRADE);
+                normalRows.sort((a, b) => {
+                    const periodCompare = normalizeArabicText(a.period || '').localeCompare(normalizeArabicText(b.period || ''), 'ar');
+                    if (periodCompare !== 0) return periodCompare;
+                    return (Number(a.room) || 9999) - (Number(b.room) || 9999);
+                });
+
+                return ensureSpecialCommitteeSession([...normalRows, ...specialRows]);
+            };
+
             const normalizeSessionsForCloud = (value, fallback) => {
                 const safeFallback = Array.isArray(fallback) && fallback.length ? fallback : generateDefaultSessions();
                 const source = Array.isArray(value) && value.length ? value : safeFallback;
-                return ensureSpecialCommitteeSession(source.map(normalizeSessionRowSafe)).map(row => row.grade === SPECIAL_COMMITTEE_GRADE ? {
+                const normalized = ensureSpecialCommitteeSession(source.map(normalizeSessionRowSafe)).map(row => row.grade === SPECIAL_COMMITTEE_GRADE ? {
                     ...row,
                     room: row.room || SPECIAL_COMMITTEE_ROOM,
                     count: row.count || SPECIAL_COMMITTEE_COUNT,
                     registeredNormal: row.registeredNormal || SPECIAL_COMMITTEE_COUNT,
                     proctorName: row.proctorName || SPECIAL_COMMITTEE_PROCTORS
                 } : row);
+                return mergeOfficialScheduledSessions(normalized);
             };
 
             const defaultEnvelopeData = () => ({
@@ -3883,7 +3919,7 @@
                     // Firestore له حد لحجم المستند، لذلك تحفظ التواقيع اليومية في Subcollection مستقلة:
                     // exam_records / currentDate / signatures / signatureId
                     signaturesStoredSeparately: true,
-                    safeWriteVersion: 'date4-preserve-previous-data'
+                    safeWriteVersion: 'date11-6-environmental-science-11-4-room-fix'
                 };
                 return cleanForFirestore(safePayload);
             };
@@ -4396,16 +4432,17 @@
                     // ثم تحاول الجداول استخدامها كـ array فتحدث شاشة بيضاء. الآن نتجاهل الحقل التالف فقط.
                     try {
                         if (Array.isArray(data.sessionsData)) {
-                            const safeSessions = ensureSpecialCommitteeSession(data.sessionsData).map(row => row.grade === SPECIAL_COMMITTEE_GRADE ? {
-                                ...row,
-                                room: row.room || SPECIAL_COMMITTEE_ROOM,
-                                count: row.count || SPECIAL_COMMITTEE_COUNT,
-                                registeredNormal: row.registeredNormal || SPECIAL_COMMITTEE_COUNT,
-                                proctorName: row.proctorName || SPECIAL_COMMITTEE_PROCTORS
-                            } : row);
+                            // ندمج بيانات Firebase القديمة مع القاعات الرسمية للتاريخ الحالي
+                            // حتى لا تختفي أي قاعة مضافة حديثاً مثل 11/4 في تاريخ 11/6.
+                            const safeSessions = normalizeSessionsForCloud(data.sessionsData, generateDefaultSessions());
                             setSessionsData(safeSessions);
+                            safeLocalSetItem(`exam_sessions_${currentDate}`, JSON.stringify(safeSessions));
                         } else if (data.sessionsData) {
                             console.warn('تم تجاهل sessionsData غير صالحة من Firebase لهذا التاريخ:', currentDate, data.sessionsData);
+                        } else {
+                            const defaultSessions = normalizeSessionsForCloud(generateDefaultSessions(), generateDefaultSessions());
+                            setSessionsData(defaultSessions);
+                            safeLocalSetItem(`exam_sessions_${currentDate}`, JSON.stringify(defaultSessions));
                         }
 
                         if (data.envelopeData && typeof data.envelopeData === 'object' && !Array.isArray(data.envelopeData)) setEnvelopeData(normalizeEnvelopeData(data.envelopeData));
